@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f6023c1b4c05f94496e7d6c16387c2b, type: 3}
+  m_Name: GameConstants
+  m_EditorClassIdentifier: CrazyDriver.Game::CrazyDriver.Game.Data.GameConstantsSO
+  _car:
+    _speed: 12
+    _accelerationTime: 0.9
+    _brakingTime: 1.6
+    _sway:
+      _amplitude: 0.75
+      _wavelength: 70
+      _octaves: 2
+      _persistence: 0.35
+      _lacunarity: 1.7
+      _yawResponse: 1.3
+  _turret:
+    _degreesPerScreenWidth: 150
+    _maxAngle: 70
+    _smoothingTime: 0.05
+  _weapon:
+    _shotsPerSecond: 5
+    _damage: 34
+    _projectileSpeed: 90
+    _projectileLifetime: 2.5
+    _hitRadius: 0.35
+  _enemy:
+    _maxHealth: 100
+    _moveSpeed: 6
+    _activationDistance: 30
+    _despawnDistanceBehind: 25
+    _attackRange: 3.2
+    _collisionDamage: 25
+    _interceptLead: 0.65
+  _camera:
+    _readyOffset: {x: 0, y: 8.5, z: -11.5}
+    _playOffset: {x: 0, y: 12.5, z: -13}
+    _lookAtOffset: {x: 0, y: 0, z: 1}
+    _stateBlendDuration: 1.1
+    _positionSmoothingTime: 0.22
+    _rotationSmoothingTime: 0.16
+    _swayFollow: 0.35
+  _road:
+    _tileLength: 75
+    _distanceAhead: 190
+    _distanceBehind: 85
+    _halfWidth: 6.5
+  _gate:
+    _distanceAhead: 18
+    _openDuration: 0.85
+    _openTravel: 3.4
+    _carStartDelay: 0.25
+  _projectileHitMask:
+    serializedVersion: 2
+    m_Bits: 256

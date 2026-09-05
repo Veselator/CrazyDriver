@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1901612ee691ccd4ba31ef9974368731, type: 3}
+  m_Name: Level_Desert
+  m_EditorClassIdentifier: CrazyDriver.Game::CrazyDriver.Game.Data.LevelSO
+  _roadPrefabs:
+  - {fileID: 6646537081865007563, guid: 9a3acaeaf5721634f9d6d48d2d8266c8, type: 3}
+  _enemyPrefab: {fileID: 2208895892764331430, guid: 44ce29b03139d3c4591560ecad52033e, type: 3}
+  _bonusPrefabs:
+  - {fileID: 175118297794163370, guid: cd6b5a1d9548f3843bfe4980c208f895, type: 3}
+  _projectilePrefab: {fileID: 5564234467769626740, guid: e9290aacaea42bf4d83b80b45db0a93e, type: 3}
+  _carMaxHealth: 200
+  _maps:
+  - _name: Desert Run
+    _length: 500
+    _enemyFrequency: 10
+    _bonusFrequency: 4
+    _bonuses:
+    - _prefabIndex: 0
+      _coinReward: 25
+      _weight: 1
+    _startClearance: 45
+    _endClearance: 25
+    _heightProfile:
+      _amplitude: 1.2
+      _wavelength: 600
+      _octaves: 2
+      _persistence: 0.4
+      _lacunarity: 1.5
