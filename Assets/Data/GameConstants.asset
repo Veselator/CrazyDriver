@@ -36,15 +36,15 @@ MonoBehaviour:
   _enemy:
     _maxHealth: 100
     _moveSpeed: 6
-    _activationDistance: 30
+    _activationDistance: 66.6
     _despawnDistanceBehind: 25
     _attackRange: 3.2
     _collisionDamage: 25
     _interceptLead: 0.65
   _camera:
     _readyOffset: {x: 0, y: 8.5, z: -11.5}
-    _playOffset: {x: 0, y: 12.5, z: -13}
-    _lookAtOffset: {x: 0, y: 0, z: 1}
+    _playOffset: {x: 0, y: 12.5, z: -8.21}
+    _lookAtOffset: {x: 0, y: 0, z: 10.37}
     _stateBlendDuration: 1.1
     _positionSmoothingTime: 0.22
     _rotationSmoothingTime: 0.16

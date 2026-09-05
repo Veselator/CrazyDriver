@@ -118,6 +118,13 @@ to it, so deleting it would change nothing about how the game plays.
   burst came out white.
 - **Tyre tracks** — a `TrailRenderer` per rear wheel. The car only ever moves forward along a known
   path, so a decal projector would buy nothing that a trail does not.
+- **The laser beam** uses `Assets/Shaders/LaserBeam.shader`: an unlit additive pass with separate
+  `_Intensity` and `_Alpha` knobs. Additive rather than alpha-blended because a laser adds light to
+  what is behind it instead of tinting it, and a view-facing term gives the tube a bright core with
+  soft edges instead of reading as a plastic rod. `LaserBeamView` writes both values through a
+  `MaterialPropertyBlock`, so nothing clones the material at runtime, and plays the power-up flicker:
+  pulses that dim towards the idle level, then an ease onto it. `LaserActivationSystem` is the seam
+  that triggers it when a run starts -- the beam knows how to flicker, the run knows when.
 - **Health and progress bars** fill by sliding a full-size visual under a mask
   (`HealthBar → Viewport (Mask) → Fill`), driven by `ProgressBarView`. `Image.fillAmount` squeezes
   the sprite as the value drops, distorting any gradient or bevel on it; a mask leaves the fill at

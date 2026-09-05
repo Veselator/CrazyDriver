@@ -47,6 +47,9 @@ namespace CrazyDriver.Game.Bootstrap
         [SerializeField] private HudView _hudView;
         [SerializeField] private ResultView _resultView;
 
+        [SerializeField, Tooltip("Optional. Leave empty and the laser systems simply are not registered.")]
+        private LaserBeamView _laserView;
+
         [Header("Feedback prefabs")]
         [SerializeField] private FloatingTextView _floatingTextPrefab;
         [SerializeField] private VfxBurstView _burstPrefab;
@@ -97,6 +100,13 @@ namespace CrazyDriver.Game.Bootstrap
             builder.RegisterComponent(_gateView);
             builder.RegisterComponent(_hudView);
             builder.RegisterComponent(_resultView);
+
+            // Optional: the beam is authored into the scene rather than generated, so the container
+            // must tolerate a project where nobody has added one yet.
+            if (_laserView != null)
+            {
+                builder.RegisterComponent(_laserView);
+            }
         }
 
         private void RegisterSimulation(IContainerBuilder builder)
@@ -168,6 +178,12 @@ namespace CrazyDriver.Game.Bootstrap
             builder.RegisterEntryPoint<ProjectileLauncher>();
             builder.RegisterEntryPoint<GameLoop>();
             builder.RegisterEntryPoint<PresentationSystem>();
+
+            if (_laserView != null)
+            {
+                builder.RegisterEntryPoint<LaserActivationSystem>();
+            }
+
             builder.RegisterEntryPoint<GameBootstrap>();
         }
 
