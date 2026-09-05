@@ -1,3 +1,4 @@
+using System.IO;
 using System.Text;
 using CrazyDriver.Core.Actors;
 using CrazyDriver.Core.Car;
@@ -64,27 +65,39 @@ namespace CrazyDriver.Editor
         /// </summary>
         private static string CheckProfileRoundTrip()
         {
-            var storage = new JsonProfileStorage();
-            var service = new PlayerProfileService(storage);
+            // A scratch file, not the real save. A test that leaves the player's coins and best
+            // distance different from how it found them is a bug, not a test.
+            const string fileName = "player-profile.smoketest.json";
 
-            int coinsBefore = service.Profile.TotalCoins;
-            int runsBefore = service.Profile.RunsPlayed;
+            var storage = new JsonProfileStorage(fileName);
 
-            service.RecordRun(won: true, coinsEarned: 7, kills: 3, distance: 123f);
+            try
+            {
+                var service = new PlayerProfileService(storage);
+                service.RecordRun(won: true, coinsEarned: 7, kills: 3, distance: 123f);
 
-            // A second service reads from disk rather than from the instance that just wrote, which
-            // is what makes this a round trip instead of a memory check.
-            var reloaded = new PlayerProfileService(new JsonProfileStorage()).Profile;
+                // A second service reads from disk rather than from the instance that just wrote,
+                // which is what makes this a round trip instead of a memory check.
+                PlayerProfile reloaded = new PlayerProfileService(new JsonProfileStorage(fileName)).Profile;
 
-            bool coinsMatch = reloaded.TotalCoins == coinsBefore + 7;
-            bool runsMatch = reloaded.RunsPlayed == runsBefore + 1;
-            bool bestMatch = reloaded.BestDistance >= 123f;
+                bool coinsMatch = reloaded.TotalCoins == 7;
+                bool runsMatch = reloaded.RunsPlayed == 1 && reloaded.RunsWon == 1;
+                bool killsMatch = reloaded.TotalKills == 3;
+                bool bestMatch = Mathf.Approximately(reloaded.BestDistance, 123f);
 
-            string verdict = coinsMatch && runsMatch && bestMatch ? "OK" : "FAILED";
+                string verdict = coinsMatch && runsMatch && killsMatch && bestMatch ? "OK" : "FAILED";
 
-            return $"  profile round trip -> {verdict} " +
-                   $"(coins {reloaded.TotalCoins}, runs {reloaded.RunsPlayed}, best {reloaded.BestDistance:0} m)\n" +
-                   $"  profile file: {storage.FilePath}";
+                return $"  profile round trip -> {verdict} " +
+                       $"(coins {reloaded.TotalCoins}, runs {reloaded.RunsWon}/{reloaded.RunsPlayed}, " +
+                       $"kills {reloaded.TotalKills}, best {reloaded.BestDistance:0} m)";
+            }
+            finally
+            {
+                if (File.Exists(storage.FilePath))
+                {
+                    File.Delete(storage.FilePath);
+                }
+            }
         }
 
         /// <param name="marksmanship">

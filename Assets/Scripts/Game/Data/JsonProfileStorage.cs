@@ -14,13 +14,17 @@ namespace CrazyDriver.Game.Data
     /// </summary>
     public sealed class JsonProfileStorage : IProfileStorage
     {
-        private const string FileName = "player-profile.json";
+        private const string DefaultFileName = "player-profile.json";
 
         private readonly string _path;
 
-        public JsonProfileStorage()
+        /// <param name="fileName">
+        /// Overridable so a test can round-trip through its own file. Without it the only way to
+        /// exercise persistence would be to overwrite the player's actual save.
+        /// </param>
+        public JsonProfileStorage(string fileName = DefaultFileName)
         {
-            _path = Path.Combine(Application.persistentDataPath, FileName);
+            _path = Path.Combine(Application.persistentDataPath, fileName);
         }
 
         /// <summary>Not named Path: that would shadow <see cref="System.IO.Path"/> inside this type.</summary>
