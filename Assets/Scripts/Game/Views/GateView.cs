@@ -3,6 +3,7 @@ using CrazyDriver.Core.Configuration;
 using CrazyDriver.Core.Path;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using VContainer;
 
 namespace CrazyDriver.Game.Views
 {
@@ -19,6 +20,7 @@ namespace CrazyDriver.Game.Views
         private Vector3 _leftClosed;
         private Vector3 _rightClosed;
 
+        [Inject]
         public void Construct(GateSettings settings)
         {
             _settings = settings;

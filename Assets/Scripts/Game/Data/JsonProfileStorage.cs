@@ -1,6 +1,7 @@
 using System.IO;
 using CrazyDriver.Core.Progression;
 using UnityEngine;
+using VContainer;
 
 namespace CrazyDriver.Game.Data
 {
@@ -18,11 +19,21 @@ namespace CrazyDriver.Game.Data
 
         private readonly string _path;
 
+        /// <summary>
+        /// The constructor the container uses. Marked explicitly, and separate from the overload
+        /// below, because a default parameter value does not help VContainer -- it would still try
+        /// to resolve a registration for <see cref="string"/> and fail.
+        /// </summary>
+        [Inject]
+        public JsonProfileStorage() : this(DefaultFileName)
+        {
+        }
+
         /// <param name="fileName">
         /// Overridable so a test can round-trip through its own file. Without it the only way to
         /// exercise persistence would be to overwrite the player's actual save.
         /// </param>
-        public JsonProfileStorage(string fileName = DefaultFileName)
+        public JsonProfileStorage(string fileName)
         {
             _path = Path.Combine(Application.persistentDataPath, fileName);
         }

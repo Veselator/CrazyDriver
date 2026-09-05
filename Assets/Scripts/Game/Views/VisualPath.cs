@@ -2,7 +2,9 @@ using System.Collections.Generic;
 using CrazyDriver.Core.Configuration;
 using CrazyDriver.Core.Level;
 using CrazyDriver.Core.Path;
+using CrazyDriver.Game.Data;
 using UnityEngine;
+using VContainer;
 using Random = System.Random;
 
 namespace CrazyDriver.Game.Views
@@ -27,10 +29,13 @@ namespace CrazyDriver.Game.Views
         private ViewPool<Transform>[] _tilePools;
         private int _seed;
 
-        public void Construct(RoadSettings settings, IPathEvaluator path, GameObject[] roadPrefabs)
+        [Inject]
+        public void Construct(RoadSettings settings, IPathEvaluator path, LevelSO level)
         {
             _settings = settings;
             _path = path;
+
+            GameObject[] roadPrefabs = level.RoadPrefabs;
 
             if (_tileRoot == null)
             {

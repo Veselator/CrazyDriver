@@ -1,14 +1,12 @@
 using System;
 using System.Threading;
 using CrazyDriver.Core.Car;
-using CrazyDriver.Core.Combat;
 using CrazyDriver.Core.Configuration;
 using CrazyDriver.Core.Economy;
 using CrazyDriver.Core.Level;
 using CrazyDriver.Core.Path;
 using CrazyDriver.Core.Progression;
 using CrazyDriver.Core.Run;
-using CrazyDriver.Game.Data;
 using CrazyDriver.Game.Input;
 using CrazyDriver.Game.UI;
 using CrazyDriver.Game.Views;
@@ -33,13 +31,9 @@ namespace CrazyDriver.Game.Bootstrap
         private readonly ActivePath _path;
         private readonly PathProgress _progress;
         private readonly CarModel _car;
-        private readonly Health _carHealth;
         private readonly Wallet _wallet;
         private readonly PlayerProfileService _profiles;
         private readonly GateSettings _gateSettings;
-        private readonly RoadSettings _roadSettings;
-        private readonly CameraSettings _cameraSettings;
-        private readonly LevelSO _level;
 
         private readonly VisualPath _road;
         private readonly CameraRig _camera;
@@ -58,13 +52,9 @@ namespace CrazyDriver.Game.Bootstrap
             ActivePath path,
             PathProgress progress,
             CarModel car,
-            Health carHealth,
             Wallet wallet,
             PlayerProfileService profiles,
             GateSettings gateSettings,
-            RoadSettings roadSettings,
-            CameraSettings cameraSettings,
-            LevelSO level,
             VisualPath road,
             CameraRig camera,
             GateView gate,
@@ -78,13 +68,9 @@ namespace CrazyDriver.Game.Bootstrap
             _path = path;
             _progress = progress;
             _car = car;
-            _carHealth = carHealth;
             _wallet = wallet;
             _profiles = profiles;
             _gateSettings = gateSettings;
-            _roadSettings = roadSettings;
-            _cameraSettings = cameraSettings;
-            _level = level;
             _road = road;
             _camera = camera;
             _gate = gate;
@@ -97,11 +83,8 @@ namespace CrazyDriver.Game.Bootstrap
         {
             _lifetime = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
 
-            _road.Construct(_roadSettings, _path, _level.RoadPrefabs);
-            _camera.Construct(_cameraSettings);
-            _gate.Construct(_gateSettings);
-            _hud.Construct(_carHealth, _wallet, _progress, _run);
-
+            // The views configure themselves through container injection, which happens while the
+            // scope is still building. Doing it here instead raced the first LateTick.
             _input.Tapped += OnTapped;
             _input.DragStarted += _run.BeginAim;
             _input.Dragged += _run.Aim;

@@ -1,6 +1,7 @@
 using CrazyDriver.Core.Car;
 using CrazyDriver.Core.Configuration;
 using UnityEngine;
+using VContainer;
 
 namespace CrazyDriver.Game.Views
 {
@@ -21,6 +22,12 @@ namespace CrazyDriver.Game.Views
 
         private void Reset() => _camera = GetComponent<Camera>();
 
+        /// <summary>
+        /// Injected by the container while it builds, which is strictly before any entry point
+        /// ticks. Calling this by hand from a startable instead left a window in which the first
+        /// LateTick ran against unset settings.
+        /// </summary>
+        [Inject]
         public void Construct(CameraSettings settings)
         {
             _settings = settings;

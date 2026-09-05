@@ -5,6 +5,7 @@ using CrazyDriver.Core.Run;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using VContainer;
 
 namespace CrazyDriver.Game.UI
 {
@@ -25,6 +26,7 @@ namespace CrazyDriver.Game.UI
         private PathProgress _progress;
         private RunController _run;
 
+        [Inject]
         public void Construct(Health health, Wallet wallet, PathProgress progress, RunController run)
         {
             _health = health;

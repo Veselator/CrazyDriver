@@ -112,3 +112,9 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# Third-party Asset Store packages.
+# Redistributing a paid asset through this repository is not permitted by its licence,
+# and each buyer imports their own copy anyway.
+/[Aa]ssets/FastScriptReload/
+/[Aa]ssets/FastScriptReload.meta
