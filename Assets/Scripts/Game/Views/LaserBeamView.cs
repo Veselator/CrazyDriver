@@ -6,11 +6,11 @@ using UnityEngine;
 namespace CrazyDriver.Game.Views
 {
     /// <summary>
-    /// Drives the laser beam's brightness and opacity, and plays its power-up flicker.
+    /// Drives the laser beam's brightness and opacity, and fades it up when it powers on.
     /// <para>
     /// Values are written through a <see cref="MaterialPropertyBlock"/> rather than by touching
     /// <c>Renderer.material</c>, which would clone the material at runtime and leak a copy per
-    /// instance. The block also means several beams could share one material and still flicker
+    /// instance. The block also means several beams could share one material and still be driven
     /// independently.
     /// </para>
     /// </summary>
@@ -24,24 +24,18 @@ namespace CrazyDriver.Game.Views
         [SerializeField] private Renderer _renderer;
 
         [Header("Steady state")]
-        [SerializeField, Min(0f), Tooltip("Brightness the beam settles at once it is up.")]
+        [SerializeField, Min(0f), Tooltip("Brightness the beam holds once it is up.")]
         private float _idleIntensity = 4f;
 
-        [SerializeField, Range(0f, 1f), Tooltip("Opacity the beam settles at once it is up.")]
+        [SerializeField, Range(0f, 1f), Tooltip("Opacity the beam holds once it is up.")]
         private float _idleAlpha = 0.85f;
 
-        [Header("Activation flicker")]
-        [SerializeField, Min(0f), Tooltip("Brightness of the first strike. Later flashes fall off towards idle.")]
-        private float _strikeIntensity = 18f;
+        [Header("Activation")]
+        [SerializeField, Min(0f), Tooltip("Seconds for the beam to fade up from nothing.")]
+        private float _fadeInDuration = 0.9f;
 
-        [SerializeField, Min(1), Tooltip("How many on/off pulses the start-up sequence plays.")]
-        private int _flashCount = 5;
-
-        [SerializeField, Min(0f)] private float _flashOnDuration = 0.055f;
-        [SerializeField, Min(0f)] private float _flashOffDuration = 0.045f;
-
-        [SerializeField, Min(0f), Tooltip("Seconds spent easing from the last flash down to idle.")]
-        private float _settleDuration = 0.4f;
+        [SerializeField, Tooltip("Shape of the fade. The default eases in slowly and settles gently.")]
+        private AnimationCurve _fadeCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
         private MaterialPropertyBlock _block;
         private CancellationTokenSource _activation;
@@ -67,7 +61,7 @@ namespace CrazyDriver.Game.Views
         /// <summary>Sets opacity directly, in the 0..1 range.</summary>
         public void SetAlpha(float alpha) => Write(CurrentIntensity, alpha);
 
-        /// <summary>Overrides the beam's colour. The alpha channel scales with <see cref="SetAlpha"/>.</summary>
+        /// <summary>Overrides the beam's colour. Its alpha channel scales with <see cref="SetAlpha"/>.</summary>
         public void SetColor(Color color)
         {
             EnsureBlock();
@@ -85,68 +79,48 @@ namespace CrazyDriver.Game.Views
         }
 
         /// <summary>
-        /// Plays the power-up sequence: a burst of on/off pulses whose brightness falls towards the
-        /// idle level, then an ease down onto it. Calling it again restarts the sequence.
+        /// Fades the beam up from nothing to its idle glow. Calling it again restarts the fade.
         /// </summary>
         public void PlayActivation()
         {
             CancelActivation();
 
             _activation = new CancellationTokenSource();
-            RunActivationAsync(_activation.Token).Forget();
+            FadeInAsync(_activation.Token).Forget();
         }
 
         private float CurrentIntensity { get; set; }
 
         private float CurrentAlpha { get; set; }
 
-        private async UniTaskVoid RunActivationAsync(CancellationToken cancellationToken)
+        private async UniTaskVoid FadeInAsync(CancellationToken cancellationToken)
         {
             try
             {
-                int flashes = Mathf.Max(1, _flashCount);
+                float duration = Mathf.Max(0f, _fadeInDuration);
+                float elapsed = 0f;
 
-                for (int i = 0; i < flashes; i++)
+                Write(0f, 0f);
+
+                while (elapsed < duration)
                 {
-                    // Each pulse is dimmer than the last, so the beam reads as struggling up to
-                    // power rather than as a light switch being flipped repeatedly.
-                    float t = flashes > 1 ? i / (float)(flashes - 1) : 1f;
-                    float intensity = Mathf.Lerp(_strikeIntensity, _idleIntensity, t);
+                    elapsed += Time.deltaTime;
 
-                    Write(intensity, _idleAlpha);
-                    await UniTask.Delay(Seconds(_flashOnDuration), cancellationToken: cancellationToken);
+                    // Intensity and alpha ride the same curve, so the beam gains presence and
+                    // brightness together instead of appearing solid before it starts glowing.
+                    float t = _fadeCurve.Evaluate(Mathf.Clamp01(elapsed / duration));
+                    Write(_idleIntensity * t, _idleAlpha * t);
 
-                    Write(0f, 0f);
-                    await UniTask.Delay(Seconds(_flashOffDuration), cancellationToken: cancellationToken);
+                    await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
                 }
 
-                await EaseToIdleAsync(cancellationToken);
+                Write(_idleIntensity, _idleAlpha);
             }
             catch (OperationCanceledException)
             {
                 // Superseded by another activation, or the object went away.
             }
         }
-
-        private async UniTask EaseToIdleAsync(CancellationToken cancellationToken)
-        {
-            float duration = Mathf.Max(0f, _settleDuration);
-            float elapsed = 0f;
-
-            while (elapsed < duration)
-            {
-                elapsed += Time.deltaTime;
-
-                float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
-                Write(Mathf.Lerp(_strikeIntensity * 0.5f, _idleIntensity, t), Mathf.Lerp(0f, _idleAlpha, t));
-
-                await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
-            }
-
-            Write(_idleIntensity, _idleAlpha);
-        }
-
-        private static TimeSpan Seconds(float seconds) => TimeSpan.FromSeconds(Mathf.Max(0f, seconds));
 
         private void CancelActivation()
         {

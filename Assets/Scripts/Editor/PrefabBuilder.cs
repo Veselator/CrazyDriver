@@ -38,6 +38,9 @@ namespace CrazyDriver.Editor
         /// </summary>
         private static readonly Vector3 MuzzleLocalPosition = new(0f, 1.3f, 1.78f);
 
+        /// <summary>Height of the tyre marks above the car's own ground plane, in meters.</summary>
+        public const float TyreTrackHeight = 0.18f;
+
         public static Material WorldMaterial { get; private set; }
         public static Material CarMaterial { get; private set; }
 
@@ -148,8 +151,16 @@ namespace CrazyDriver.Editor
             var track = new GameObject(lateralOffset < 0f ? "TyreTrackLeft" : "TyreTrackRight");
             track.transform.SetParent(body, false);
 
-            // Just above the road: level with it z-fights, and any higher reads as floating.
-            track.transform.localPosition = new Vector3(lateralOffset, 0.02f, -1.21f);
+            // Clears the worst gap between the smooth path the car rides and the flat tiles laid
+            // under it -- GameConstantsSO.GetRoadChordError measures that, currently 0.12 m. Sitting
+            // any lower makes the track sink under the road wherever the path dips below the chord,
+            // which shows up as the marks blinking in and out.
+            track.transform.localPosition = new Vector3(lateralOffset, TyreTrackHeight, -1.21f);
+
+            // TrailRenderer with TransformZ alignment faces its own +Z, so an unrotated emitter
+            // produces a ribbon standing on edge like a wall along the path -- invisible from above
+            // except when the car's sway tips it into view. Pointing +Z up lays it flat on the road.
+            track.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
 
             var trail = track.AddComponent<TrailRenderer>();
             trail.time = 2.6f;
@@ -161,6 +172,7 @@ namespace CrazyDriver.Editor
             trail.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             trail.alignment = LineAlignment.TransformZ;
             trail.material = CreateUnlitFadeMaterial("TyreTrack", new Color(0.10f, 0.07f, 0.05f, 0.55f));
+            trail.textureMode = LineTextureMode.Stretch;
 
             var fade = new Gradient();
             fade.SetKeys(
@@ -288,6 +300,10 @@ namespace CrazyDriver.Editor
             material.SetFloat("_ZWrite", 0f);
             material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
             material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+
+            // Double sided, so the ribbon shows whichever way its normal ends up facing.
+            material.SetFloat("_Cull", (float)UnityEngine.Rendering.CullMode.Off);
+            material.doubleSidedGI = true;
 
             EditorUtility.SetDirty(material);
             return material;

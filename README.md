@@ -117,14 +117,19 @@ to it, so deleting it would change nothing about how the game plays.
   particles carry no colour vertex stream, so a start colour never reaches the shader and every
   burst came out white.
 - **Tyre tracks** — a `TrailRenderer` per rear wheel. The car only ever moves forward along a known
-  path, so a decal projector would buy nothing that a trail does not.
+  path, so a decal projector would buy nothing that a trail does not. Two details are load-bearing:
+  the emitters are rotated so their +Z points up, because a `TrailRenderer` set to `TransformZ`
+  alignment faces its own forward and an unrotated one produces a ribbon standing on edge like a
+  wall; and they sit 0.18 m up, clearing the 0.12 m worst-case gap between the smooth path the car
+  rides and the flat tiles laid under it. Both faults show up the same way -- marks that blink in
+  and out as the car sways.
 - **The laser beam** uses `Assets/Shaders/LaserBeam.shader`: an unlit additive pass with separate
   `_Intensity` and `_Alpha` knobs. Additive rather than alpha-blended because a laser adds light to
   what is behind it instead of tinting it, and a view-facing term gives the tube a bright core with
   soft edges instead of reading as a plastic rod. `LaserBeamView` writes both values through a
-  `MaterialPropertyBlock`, so nothing clones the material at runtime, and plays the power-up flicker:
-  pulses that dim towards the idle level, then an ease onto it. `LaserActivationSystem` is the seam
-  that triggers it when a run starts -- the beam knows how to flicker, the run knows when.
+  `MaterialPropertyBlock`, so nothing clones the material at runtime, and fades intensity and alpha
+  up together on the same curve when the beam powers on. `LaserActivationSystem` is the seam that
+  triggers it when a run starts -- the beam knows how to fade, the run knows when.
 - **Health and progress bars** fill by sliding a full-size visual under a mask
   (`HealthBar → Viewport (Mask) → Fill`), driven by `ProgressBarView`. `Image.fillAmount` squeezes
   the sprite as the value drops, distorting any gradient or bevel on it; a mask leaves the fill at
