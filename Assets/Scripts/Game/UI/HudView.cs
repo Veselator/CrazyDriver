@@ -4,7 +4,6 @@ using CrazyDriver.Core.Path;
 using CrazyDriver.Core.Run;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 using VContainer;
 
 namespace CrazyDriver.Game.UI
@@ -16,8 +15,8 @@ namespace CrazyDriver.Game.UI
     public sealed class HudView : MonoBehaviour
     {
         [SerializeField] private CanvasGroup _group;
-        [SerializeField] private Image _healthFill;
-        [SerializeField] private Image _progressFill;
+        [SerializeField] private ProgressBarView _healthBar;
+        [SerializeField] private ProgressBarView _progressBar;
         [SerializeField] private TMP_Text _coinsLabel;
         [SerializeField] private TMP_Text _distanceLabel;
 
@@ -41,6 +40,11 @@ namespace CrazyDriver.Game.UI
             OnHealthChanged(_health.Current, _health.Max);
             OnCoinsChanged(_wallet.Coins);
             OnMeterPassed(0);
+
+            // Snap rather than animate on the first frame: a bar sweeping up from empty as the run
+            // is prepared reads as damage being undone.
+            _healthBar?.SnapTo(_health.Normalized);
+            _progressBar?.SnapTo(0f);
         }
 
         public void SetVisible(bool visible)
@@ -71,9 +75,9 @@ namespace CrazyDriver.Game.UI
 
         private void OnHealthChanged(float current, float max)
         {
-            if (_healthFill != null)
+            if (_healthBar != null)
             {
-                _healthFill.fillAmount = max > 0f ? current / max : 0f;
+                _healthBar.SetNormalized(max > 0f ? current / max : 0f);
             }
         }
 
@@ -94,9 +98,9 @@ namespace CrazyDriver.Game.UI
                 _distanceLabel.SetText("{0}m", meters);
             }
 
-            if (_progressFill != null)
+            if (_progressBar != null)
             {
-                _progressFill.fillAmount = _run.Progress;
+                _progressBar.SetNormalized(_run.Progress);
             }
         }
     }

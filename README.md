@@ -16,6 +16,12 @@ Open `Assets/Scenes/Game.unity` and press Play.
 `CrazyDriver/Run Simulation Smoke Test` plays whole levels headlessly and prints the outcomes.
 `CrazyDriver/Rebuild Project` regenerates every prefab, both config assets and the scene from source.
 
+> **The scene is generated, the UI is not.** `Rebuild Project` throws the scene away and rebuilds it,
+> so anything hand-placed in `Game.unity` is lost. The UI is deliberately exempt: it lives in
+> `Assets/Prefabs/UI/GameUI.prefab`, which the tool creates only if it is missing and otherwise
+> re-instantiates untouched. Edit the UI in that prefab and rebuilds will keep your work. Delete the
+> prefab to get the generated layout back.
+
 ## Architecture
 
 The rule the project is built around: **Unity is the presentation layer.** Gameplay lives in plain C#
@@ -112,6 +118,10 @@ to it, so deleting it would change nothing about how the game plays.
   burst came out white.
 - **Tyre tracks** — a `TrailRenderer` per rear wheel. The car only ever moves forward along a known
   path, so a decal projector would buy nothing that a trail does not.
+- **Health and progress bars** fill by sliding a full-size visual under a mask
+  (`HealthBar → Viewport (Mask) → Fill`), driven by `ProgressBarView`. `Image.fillAmount` squeezes
+  the sprite as the value drops, distorting any gradient or bevel on it; a mask leaves the fill at
+  its true size and simply reveals less of it, and lets the bar take a shape other than a rectangle.
 
 Enemies are destroyed by their own impact and deal their damage exactly once. A sustained
 damage-per-second instead left the survivor jogging alongside the car draining it, which reads as a
