@@ -244,12 +244,22 @@ namespace CrazyDriver.Logic
                 await UniTask.Delay(
                     TimeSpan.FromSeconds(_constants.Gate.CarStartDelay),
                     cancellationToken: cancellationToken);
-
                 State = GameState.Playing;
 
-                // Raised before Drive so the components that only run while playing are already
-                // enabled when the car starts moving.
-                GameEvents.RaiseRunStarted();
+                // Guarded because a static bus hands one listener the power to strand the whole
+                // run: an exception thrown in any OnRunStarted handler would unwind through
+                // Invoke, skip Drive, and leave the car parked with the gate open and no error
+                // that points at the cause. Logged, not swallowed -- the console still names the
+                // broken listener.
+                try
+                {
+                    GameEvents.RaiseRunStarted();
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogException(exception, this);
+                }
+
                 _car.Drive();
             }
             catch (OperationCanceledException)

@@ -98,6 +98,9 @@ namespace CrazyDriver.Actors
 
         public bool IsAlive => State != EnemyState.Dead;
 
+        [SerializeField] private int _coinsBonusPerKill = 4;
+        public int CoinsBonusPerKill => _coinsBonusPerKill;
+
         /// <summary>Called once by the pool when the instance is created.</summary>
         public void Bind(CarMotor car, PathTracker path, CarHealth carHealth)
         {

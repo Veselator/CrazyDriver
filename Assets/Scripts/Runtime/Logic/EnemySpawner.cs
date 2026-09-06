@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using CrazyDriver.Actors;
 using CrazyDriver.Config;
+using CrazyDriver.Events;
 using CrazyDriver.Level;
 using CrazyDriver.Paths;
 using CrazyDriver.Pooling;
@@ -21,8 +22,8 @@ namespace CrazyDriver.Logic
     [DefaultExecutionOrder(ExecutionOrder.Enemies)]
     public sealed class EnemySpawner : RunPhaseBehaviour
     {
-        private static readonly Color DeathColor = new(0.9f, 0.18f, 0.18f);
-        private static readonly Color HitColor = new(1f, 0.93f, 0.55f);
+        [SerializeField] private Color DeathColor = new(0.9f, 0.18f, 0.18f);
+        [SerializeField] private Color HitColor = new(1f, 0.93f, 0.55f);
 
         [SerializeField] private PathTracker _path;
         [SerializeField] private Transform _root;
@@ -152,6 +153,11 @@ namespace CrazyDriver.Logic
             enemy.Activate(sample.Position, sample.Rotation, point.Distance);
 
             _active.Add(enemy);
+
+            // Raised here rather than where the pool builds the instance: an enemy is "spawned"
+            // when it appears on the map, not when a GameObject for it happens to be allocated --
+            // most of which happens during the prewarm, before the run even starts.
+            GameEvents.RaiseEnemySpawned(enemy);
         }
 
         private void OnCreated(Enemy enemy, int poolIndex)
@@ -188,12 +194,14 @@ namespace CrazyDriver.Logic
             {
                 KillCount++;
                 _vfx?.Play(at, DeathColor);
+                GameEvents.RaiseEnemyKilledByBullets(enemy);
             }
             else if (reason == ReleaseReason.Impact)
             {
                 // The damage number and the shake come from CarHealth, which is the one place that
                 // knows what the car actually lost -- whatever kind of enemy did it.
                 _vfx?.Play(at, DeathColor);
+                GameEvents.RaiseEnemyKilledByCar(enemy);
             }
 
             _active.Remove(enemy);

@@ -14,6 +14,16 @@ namespace CrazyDriver.Level
     /// </summary>
     public sealed class LevelGenerator
     {
+        /// <summary>
+        /// Meters of slack between the start line and the first enemy that could wake at it.
+        /// <para>
+        /// Without it the nearest enemy sits exactly on its own activation boundary and starts
+        /// running on the first frame of the run, which is the one moment the player is meant to be
+        /// looking at an empty road.
+        /// </para>
+        /// </summary>
+        private const float StartWakeMargin = 10f;
+
         private readonly RoadSettings _road;
         private readonly CarSettings _car;
         private readonly EnemyEntry[] _enemyRoster;
@@ -55,6 +65,13 @@ namespace CrazyDriver.Level
                 return Array.Empty<EnemySpawnPoint>();
             }
 
+            // The map's start clearance says where spawns may begin; this says where they may begin
+            // *without already being awake*. An enemy generated inside its own activation distance
+            // of the start line charges the car before the gate has finished opening, which is what
+            // makes the wake radius look like it is not there at all.
+            from = Mathf.Max(from, MaxActivationDistance() + StartWakeMargin);
+            to = Mathf.Max(from, to);
+
             int count = CountFor(map.EnemyFrequency, from, to);
             var result = new EnemySpawnPoint[count];
 
@@ -77,6 +94,22 @@ namespace CrazyDriver.Level
             }
 
             return result;
+        }
+
+        /// <summary>The furthest any enemy on the roster wakes from. Zero for an empty roster.</summary>
+        private float MaxActivationDistance()
+        {
+            float max = 0f;
+
+            foreach (EnemyEntry entry in _enemyRoster)
+            {
+                if (entry.enemyPrefab != null)
+                {
+                    max = Mathf.Max(max, entry.enemyPrefab.ActivationDistance);
+                }
+            }
+
+            return max;
         }
 
         private int PickEnemy(float totalPart, Random random)

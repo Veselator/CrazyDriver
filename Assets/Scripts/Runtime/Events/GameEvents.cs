@@ -1,3 +1,4 @@
+using CrazyDriver.Actors;
 using System;
 using UnityEngine;
 
@@ -50,6 +51,9 @@ namespace CrazyDriver.Events
         /// <summary>The car ran out of hit points.</summary>
         public static event Action<RunResult> OnLose;
 
+        public static event Action<Enemy> OnEnemySpawned;
+        public static event Action<Enemy> OnEnemyKilled;
+
         public static void RaiseGameStarted() => OnGameStarted?.Invoke();
 
         public static void RaiseRunPrepared() => OnRunPrepared?.Invoke();
@@ -59,6 +63,9 @@ namespace CrazyDriver.Events
         public static void RaiseWin(RunResult result) => OnWin?.Invoke(result);
 
         public static void RaiseLose(RunResult result) => OnLose?.Invoke(result);
+        public static void RaiseEnemySpawned(Enemy enemy) => OnEnemySpawned?.Invoke(enemy);
+        public static void RaiseEnemyKilledByBullets(Enemy enemy) => OnEnemyKilled?.Invoke(enemy);
+        public static void RaiseEnemyKilledByCar(Enemy enemy) => OnEnemyKilled?.Invoke(enemy);
 
         /// <summary>
         /// Drops every subscription before a new play session begins.
@@ -78,6 +85,8 @@ namespace CrazyDriver.Events
             OnRunStarted = null;
             OnWin = null;
             OnLose = null;
+            OnEnemySpawned = null;
+            OnEnemyKilled = null;
         }
     }
 }
