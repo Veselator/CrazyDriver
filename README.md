@@ -44,13 +44,16 @@ leave the game playing identically and invisibly.
 
 ### The event bus
 
-`GameEvents` is a static class with four events: `OnGameStarted`, `OnRunStarted`, `OnWin`, `OnLose`.
-Publishers and subscribers never hold a reference to each other, which is the point.
+`GameEvents` is a static class with five events: `OnGameStarted`, `OnRunPrepared`, `OnRunStarted`,
+`OnWin`, `OnLose`. Publishers and subscribers never hold a reference to each other, which is the
+point. `OnRunPrepared` exists because `OnGameStarted` fires once per load and a restart still has to
+put the world back into its idle state.
 
 Two things a static bus needs and usually does not get:
 
 - Subscriptions are taken in `OnEnable` and released in `OnDisable`, never in a constructor. A static
-  event outlives every object that subscribed to it.
+  event outlives every object that subscribed to it. (`RunPhaseBehaviour` is the one deliberate
+  exception -- see below.)
 - `ResetSubscriptions` runs on `SubsystemRegistration`. A static event is **not** cleared by leaving
   play mode when Enter Play Mode Options has domain reload switched off, so without it the second
   session runs with the first session's dead subscribers still attached and every handler fires
@@ -68,8 +71,29 @@ Input -200 → GameRunner -100 → CarMotor 0 → Turret 10 → Weapon 20
            → Enemies 30 → Bonuses 40 → Projectiles 50 → Road 60
 ```
 
-`GameRunner` does not tick the others. It enables and disables them, which is how Unity expresses
-"the world is not running" without every component carrying a state check of its own.
+`GameRunner` does not tick the others, and it does not switch them on either.
+
+### Run phases
+
+A component is active during some phases of a run and not others: the turret aims only while
+playing, projectiles keep flying after the run ends so the last burst is not cut off mid-air.
+
+An earlier version had `GameRunner` hold the list, which meant every new system was an edit to the
+runner. Instead `RunPhaseBehaviour` subscribes to the bus and enables itself:
+
+```csharp
+[Flags]
+public enum RunPhase { None = 0, Ready = 1, Playing = 2, Finished = 4, Always = 7 }
+```
+
+Each component picks its own `_activeDuring` mask in the inspector -- `CarMotor` and
+`ProjectileController` run during `Playing | Finished`, the turret, the cannon and both spawners
+during `Playing` alone. Adding a system touches nothing in `GameRunner`.
+
+The subscription is taken in `Awake` and released in `OnDestroy`, which is the opposite of the rule
+above and the only place it is inverted. A component that has just disabled itself for the current
+phase must still be listening when the next one arrives; `OnDisable` would have deafened it for
+good.
 
 ### Positioning
 
