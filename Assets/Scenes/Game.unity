@@ -311,6 +311,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f5978a0bbb9064439d2a0a71716c476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.Logic.AutoCannon
+  _activeDuring: 2
   _car: {fileID: 631422863}
   _turret: {fileID: 631422862}
   _turretView: {fileID: 631422857}
@@ -327,6 +328,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 429b5313e0a31fa4d89eefd884a4b1b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.Logic.TurretAim
+  _activeDuring: 2
 --- !u!114 &631422863
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -339,6 +341,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4891446521025704491c7d6ce70cfcb8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.Logic.CarMotor
+  _activeDuring: 6
   _path: {fileID: 1049530122}
 --- !u!1 &655836557
 GameObject:
@@ -397,6 +400,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1640650740920979878, guid: 353623b64ae57124d966d7b096d6b5ab, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.5215
+      objectReference: {fileID: 0}
+    - target: {fileID: 1640650740920979878, guid: 353623b64ae57124d966d7b096d6b5ab, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.5215
+      objectReference: {fileID: 0}
+    - target: {fileID: 1640650740920979878, guid: 353623b64ae57124d966d7b096d6b5ab, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.5215
+      objectReference: {fileID: 0}
     - target: {fileID: 1640650740920979878, guid: 353623b64ae57124d966d7b096d6b5ab, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -634,6 +649,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0763055fabd6e0f4eb1ce4f09096af49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.Logic.ProjectileController
+  _activeDuring: 6
   _root: {fileID: 1156037987}
 --- !u!114 &1049530119
 MonoBehaviour:
@@ -818,6 +834,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd8bc2a126cbaf548a3c546946260119, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.Logic.EnemySpawner
+  _activeDuring: 2
   _path: {fileID: 1049530122}
   _root: {fileID: 1052081037}
   _vfx: {fileID: 31469313}
@@ -1024,7 +1041,15 @@ PrefabInstance:
       propertyPath: m_TextStyleHashCode
       value: -1183493901
       objectReference: {fileID: 0}
+    - target: {fileID: 6131631635195742508, guid: c6b7be11a69dca049a0d665efe2657b1, type: 3}
+      propertyPath: _punchScale
+      value: 2.24
+      objectReference: {fileID: 0}
     - target: {fileID: 6151127470127869733, guid: c6b7be11a69dca049a0d665efe2657b1, type: 3}
+      propertyPath: m_TextStyleHashCode
+      value: -1183493901
+      objectReference: {fileID: 0}
+    - target: {fileID: 6836409545092451383, guid: c6b7be11a69dca049a0d665efe2657b1, type: 3}
       propertyPath: m_TextStyleHashCode
       value: -1183493901
       objectReference: {fileID: 0}
@@ -1547,6 +1572,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f26e9858c03e134bbf4d94c433046ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.Logic.BonusSpawner
+  _activeDuring: 2
   _path: {fileID: 1049530122}
   _root: {fileID: 1955140746}
   _vfx: {fileID: 31469313}

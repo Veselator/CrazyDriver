@@ -18,7 +18,7 @@ namespace CrazyDriver.Logic
     /// </summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(ExecutionOrder.Enemies)]
-    public sealed class EnemySpawner : MonoBehaviour
+    public sealed class EnemySpawner : RunPhaseBehaviour
     {
         private static readonly Color DeathColor = new(0.9f, 0.18f, 0.18f);
         private static readonly Color DamageColor = new(1f, 0.35f, 0.3f);
@@ -52,7 +52,7 @@ namespace CrazyDriver.Logic
         /// <summary>Enemies destroyed by the player this run. Bumper kills do not count.</summary>
         public int KillCount { get; private set; }
 
-        private void Awake()
+        protected override void OnAwake()
         {
             if (_root == null)
             {
@@ -145,7 +145,7 @@ namespace CrazyDriver.Logic
             _free.Push(enemy);
         }
 
-        private void OnDestroy()
+        protected override void OnDestroyed()
         {
             foreach (Enemy enemy in _active)
             {

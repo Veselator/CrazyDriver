@@ -19,7 +19,7 @@ namespace CrazyDriver.Logic
     /// </summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(ExecutionOrder.Projectiles)]
-    public sealed class ProjectileController : MonoBehaviour
+    public sealed class ProjectileController : RunPhaseBehaviour
     {
         private struct Shot
         {
@@ -45,7 +45,7 @@ namespace CrazyDriver.Logic
             _level = level;
         }
 
-        private void Awake()
+        protected override void OnAwake()
         {
             if (_root == null)
             {

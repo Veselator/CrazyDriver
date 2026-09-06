@@ -12,7 +12,7 @@ namespace CrazyDriver.Logic
     /// <summary>Streams shootable bonuses alongside the enemies and pays their coins into the wallet.</summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(ExecutionOrder.Bonuses)]
-    public sealed class BonusSpawner : MonoBehaviour
+    public sealed class BonusSpawner : RunPhaseBehaviour
     {
         private static readonly Color CoinColor = new(1f, 0.82f, 0.25f);
 
@@ -39,7 +39,7 @@ namespace CrazyDriver.Logic
             _wallet = wallet;
         }
 
-        private void Awake()
+        protected override void OnAwake()
         {
             if (_root == null)
             {
@@ -147,7 +147,7 @@ namespace CrazyDriver.Logic
             _pools[_poolOf[bonus]].Push(bonus);
         }
 
-        private void OnDestroy()
+        protected override void OnDestroyed()
         {
             foreach (Bonus bonus in _poolOf.Keys)
             {

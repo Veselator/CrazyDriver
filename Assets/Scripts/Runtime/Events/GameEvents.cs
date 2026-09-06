@@ -34,6 +34,13 @@ namespace CrazyDriver.Events
         /// <summary>The scene is up and every system has initialised. Raised once per load.</summary>
         public static event Action OnGameStarted;
 
+        /// <summary>
+        /// A level has been generated and the car is parked, waiting for a tap. Raised before every
+        /// run, including each restart -- which is what <see cref="OnGameStarted"/> cannot do,
+        /// since it fires once and a restart has to put the world back into its idle state.
+        /// </summary>
+        public static event Action OnRunPrepared;
+
         /// <summary>The player has committed to a run and the car is pulling away.</summary>
         public static event Action OnRunStarted;
 
@@ -44,6 +51,8 @@ namespace CrazyDriver.Events
         public static event Action<RunResult> OnLose;
 
         public static void RaiseGameStarted() => OnGameStarted?.Invoke();
+
+        public static void RaiseRunPrepared() => OnRunPrepared?.Invoke();
 
         public static void RaiseRunStarted() => OnRunStarted?.Invoke();
 
@@ -65,6 +74,7 @@ namespace CrazyDriver.Events
         private static void ResetSubscriptions()
         {
             OnGameStarted = null;
+            OnRunPrepared = null;
             OnRunStarted = null;
             OnWin = null;
             OnLose = null;

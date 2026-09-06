@@ -10,7 +10,7 @@ namespace CrazyDriver.Logic
     /// </summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(ExecutionOrder.Weapon)]
-    public sealed class AutoCannon : MonoBehaviour
+    public sealed class AutoCannon : RunPhaseBehaviour
     {
         [SerializeField] private CarMotor _car;
         [SerializeField] private TurretAim _turret;

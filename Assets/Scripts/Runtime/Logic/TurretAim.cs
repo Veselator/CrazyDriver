@@ -15,7 +15,7 @@ namespace CrazyDriver.Logic
     /// </summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(ExecutionOrder.Turret)]
-    public sealed class TurretAim : MonoBehaviour
+    public sealed class TurretAim : RunPhaseBehaviour
     {
         private TurretSettings _settings;
 

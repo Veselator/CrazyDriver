@@ -57,7 +57,7 @@ MonoBehaviour:
   _gate:
     _distanceAhead: 18
     _openDuration: 0.85
-    _openTravel: 3.4
+    _openTravel: 3.02
     _carStartDelay: 0.25
   _projectileHitMask:
     serializedVersion: 2

@@ -16,7 +16,7 @@ namespace CrazyDriver.Logic
     /// </summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(ExecutionOrder.CarMotor)]
-    public sealed class CarMotor : MonoBehaviour
+    public sealed class CarMotor : RunPhaseBehaviour
     {
         [SerializeField] private PathTracker _path;
 

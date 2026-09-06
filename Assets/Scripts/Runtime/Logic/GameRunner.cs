@@ -178,7 +178,8 @@ namespace CrazyDriver.Logic
             _camera.SetPlaying(false);
             _camera.Snap(_car);
 
-            SetState(GameState.Ready);
+            State = GameState.Ready;
+            GameEvents.RaiseRunPrepared();
 
             Debug.Log($"[CrazyDriver] Map '{Plan.MapName}', {Plan.Length:0}m, " +
                       $"{Plan.Enemies.Length} enemies, {Plan.Bonuses.Length} bonuses, seed {seed}.");
@@ -242,10 +243,12 @@ namespace CrazyDriver.Logic
                     TimeSpan.FromSeconds(_constants.Gate.CarStartDelay),
                     cancellationToken: cancellationToken);
 
-                SetState(GameState.Playing);
-                _car.Drive();
+                State = GameState.Playing;
 
+                // Raised before Drive so the components that only run while playing are already
+                // enabled when the car starts moving.
                 GameEvents.RaiseRunStarted();
+                _car.Drive();
             }
             catch (OperationCanceledException)
             {
@@ -267,7 +270,7 @@ namespace CrazyDriver.Logic
 
         private void Finish(bool won)
         {
-            SetState(won ? GameState.Won : GameState.Lost);
+            State = won ? GameState.Won : GameState.Lost;
 
             _car.Brake();
             _enemies.Clear();
@@ -287,22 +290,6 @@ namespace CrazyDriver.Logic
             {
                 GameEvents.RaiseLose(result);
             }
-        }
-
-        private void SetState(GameState next)
-        {
-            State = next;
-
-            bool playing = next == GameState.Playing;
-
-            // The car keeps ticking after a win or a loss so it can roll to a stop; everything else
-            // that could still change the outcome is switched off.
-            _car.enabled = playing || next is GameState.Won or GameState.Lost;
-            _turret.enabled = playing;
-            _cannon.enabled = playing;
-            _enemies.enabled = playing;
-            _bonuses.enabled = playing;
-            _projectiles.enabled = playing || next is GameState.Won or GameState.Lost;
         }
     }
 }
