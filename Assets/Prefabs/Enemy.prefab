@@ -51,10 +51,19 @@ MonoBehaviour:
   _maxHealth: 100
   _activationDistance: 66.6
   _despawnDistanceBehind: 25
-  _moveSpeed: 6
+  _coinsBonusPerKill: 4
+  _moveSpeed: 3.59
   _attackRange: 3.2
   _interceptLead: 0.65
   _collisionDamage: 25
+  _turnSpeed: 420
+  _speedVariance: 0.296
+  _surgeAmount: 0.125
+  _surgeRate: 0.6
+  _weaveAmplitude: 0.33
+  _weaveRate: 0.7
+  _reactionInterval: {x: 0.16, y: 0.42}
+  _aimScatter: 1.4
 --- !u!114 &561251281803095795
 MonoBehaviour:
   m_ObjectHideFlags: 0
