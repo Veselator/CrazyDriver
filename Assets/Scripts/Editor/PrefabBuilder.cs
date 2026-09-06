@@ -1,5 +1,6 @@
 using System.IO;
-using CrazyDriver.Game.Views;
+using CrazyDriver.Actors;
+using CrazyDriver.View;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -313,14 +314,15 @@ namespace CrazyDriver.Editor
         {
             var root = new GameObject("Enemy") { layer = LayerMask.NameToLayer(HittableLayerName) };
 
+            // Logic and view are separate components on the same object: Enemy decides, EnemyView
+            // draws, and neither can quietly start doing the other's job.
+            var enemy = root.AddComponent<Enemy>();
             var enemyView = root.AddComponent<EnemyView>();
 
             var capsule = root.AddComponent<CapsuleCollider>();
             capsule.height = 1.8f;
             capsule.radius = 0.45f;
             capsule.center = new Vector3(0f, 0.9f, 0f);
-
-            var receiver = root.AddComponent<DamageReceiver>();
 
             GameObject model = InstantiateModel("Assets/Models/stickman.fbx", root.transform, WorldMaterial);
             model.name = "Model";
@@ -333,7 +335,9 @@ namespace CrazyDriver.Editor
                 animator = model.AddComponent<Animator>();
             }
 
-            SerializeFields(enemyView, ("_damageReceiver", receiver), ("_animator", animator));
+            // Enemy implements IDamageable itself, so a projectile sweep resolves straight from the
+            // collider to the enemy. The bridge component that used to sit between them is gone.
+            SerializeFields(enemyView, ("_enemy", enemy), ("_animator", animator));
 
             Save(root, "Enemy");
         }
@@ -342,13 +346,12 @@ namespace CrazyDriver.Editor
         {
             var root = new GameObject("Bonus") { layer = LayerMask.NameToLayer(HittableLayerName) };
 
+            root.AddComponent<Bonus>();
             var bonusView = root.AddComponent<BonusView>();
 
             var box = root.AddComponent<BoxCollider>();
             box.size = new Vector3(1.1f, 1.1f, 1.1f);
             box.center = new Vector3(0f, 0.9f, 0f);
-
-            var receiver = root.AddComponent<DamageReceiver>();
 
             var spinner = new GameObject("Spinner");
             spinner.transform.SetParent(root.transform, false);
@@ -363,7 +366,7 @@ namespace CrazyDriver.Editor
             Object.DestroyImmediate(crate.GetComponent<BoxCollider>());
             crate.GetComponent<Renderer>().sharedMaterial = CreateColorMaterial("Bonus", new Color(1f, 0.78f, 0.15f));
 
-            SerializeFields(bonusView, ("_damageReceiver", receiver), ("_spinner", spinner.transform));
+            SerializeFields(bonusView, ("_spinner", spinner.transform));
 
             Save(root, "Bonus");
         }
