@@ -14,8 +14,31 @@ namespace CrazyDriver.View
 
         [SerializeField] private Enemy _enemy;
         [SerializeField] private Animator _animator;
+        [SerializeField] private FlashOnHit _flash;
 
-        private void Reset() => _enemy = GetComponent<Enemy>();
+        private void Reset()
+        {
+            _enemy = GetComponent<Enemy>();
+            _flash = GetComponent<FlashOnHit>();
+        }
+
+        private void OnEnable()
+        {
+            if (_enemy != null)
+            {
+                _enemy.Damaged += OnDamaged;
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (_enemy != null)
+            {
+                _enemy.Damaged -= OnDamaged;
+            }
+        }
+
+        private void OnDamaged() => _flash?.Flash();
 
         private void LateUpdate()
         {

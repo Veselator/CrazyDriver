@@ -19,6 +19,16 @@ namespace CrazyDriver.Editor
         public static GameConstantsSO Constants { get; private set; }
         public static LevelSO Level { get; private set; }
 
+        /// <summary>
+        /// When true, existing assets are rewritten with the values in this file. Off by default.
+        /// <para>
+        /// These two assets are tuned by hand in the inspector, and every value here is only a
+        /// starting point. Rewriting them on a routine "rebuild" throws that tuning away silently,
+        /// which is the single most expensive thing this tool can do.
+        /// </para>
+        /// </summary>
+        public static bool Overwrite { get; set; }
+
         public static void BuildAll()
         {
             Directory.CreateDirectory(DataFolder);
@@ -32,7 +42,16 @@ namespace CrazyDriver.Editor
 
         private static GameConstantsSO BuildConstants()
         {
-            var asset = LoadOrCreate<GameConstantsSO>($"{DataFolder}/GameConstants.asset");
+            const string path = DataFolder + "/GameConstants.asset";
+
+            var existing = AssetDatabase.LoadAssetAtPath<GameConstantsSO>(path);
+            if (existing != null && !Overwrite)
+            {
+                Debug.Log("[GameAssetBuilder] GameConstants.asset exists and was left alone.");
+                return existing;
+            }
+
+            var asset = LoadOrCreate<GameConstantsSO>(path);
             var so = new SerializedObject(asset);
 
             // Car: 12 m/s covers the 500 m level in about 42 seconds.
@@ -115,7 +134,16 @@ namespace CrazyDriver.Editor
 
         private static LevelSO BuildLevel()
         {
-            var asset = LoadOrCreate<LevelSO>($"{DataFolder}/Level_Desert.asset");
+            const string path = DataFolder + "/Level_Desert.asset";
+
+            var existing = AssetDatabase.LoadAssetAtPath<LevelSO>(path);
+            if (existing != null && !Overwrite)
+            {
+                Debug.Log("[GameAssetBuilder] Level_Desert.asset exists and was left alone.");
+                return existing;
+            }
+
+            var asset = LoadOrCreate<LevelSO>(path);
             var so = new SerializedObject(asset);
 
             SetObjectArray(so, "_roadPrefabs", $"{PrefabBuilder.PrefabFolder}/RoadTile.prefab");

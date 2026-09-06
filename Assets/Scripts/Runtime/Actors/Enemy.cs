@@ -20,6 +20,19 @@ namespace CrazyDriver.Actors
         Dead
     }
 
+    /// <summary>Why an enemy left play. The spawner reacts differently to each.</summary>
+    public enum ReleaseReason
+    {
+        /// <summary>Shot down. Counts as a kill and bursts.</summary>
+        Shot,
+
+        /// <summary>Reached the car and destroyed itself on it. Damages the car.</summary>
+        Impact,
+
+        /// <summary>Fell behind, or the run ended. Silent.</summary>
+        Retired
+    }
+
     /// <summary>
     /// One enemy: its state, its health and its movement. The matching <see cref="EnemyView"/> reads
     /// <see cref="State"/> and drives the visuals, and never touches any of this.
@@ -36,14 +49,16 @@ namespace CrazyDriver.Actors
         private float _health;
 
         /// <summary>
-        /// Raised when the enemy leaves play, carrying true when gunfire killed it rather than the
-        /// bumper or the streaming window.
+        /// Raised when the enemy leaves play, carrying why.
         /// <para>
         /// The spawner subscribes once, when the pool builds this instance, and never unsubscribes.
         /// Wiring it per rent instead is how a pooled object ends up with a dead subscriber list.
         /// </para>
         /// </summary>
-        public event Action<Enemy, bool> Released;
+        public event Action<Enemy, ReleaseReason> Released;
+
+        /// <summary>Raised on a hit that did not kill, so the view can flash.</summary>
+        public event Action Damaged;
 
         public EnemyState State { get; private set; } = EnemyState.Dead;
 
@@ -80,11 +95,12 @@ namespace CrazyDriver.Actors
             _health -= amount;
             if (_health > 0f)
             {
+                Damaged?.Invoke();
                 return;
             }
 
             State = EnemyState.Dead;
-            Released?.Invoke(this, true);
+            Released?.Invoke(this, ReleaseReason.Shot);
         }
 
         /// <summary>Retire without counting as a kill: it fell behind, or the run ended.</summary>
@@ -96,7 +112,7 @@ namespace CrazyDriver.Actors
             }
 
             State = EnemyState.Dead;
-            Released?.Invoke(this, false);
+            Released?.Invoke(this, ReleaseReason.Retired);
         }
 
         private void Update()
@@ -162,7 +178,7 @@ namespace CrazyDriver.Actors
             _carHealth.TakeDamage(_settings.CollisionDamage);
 
             State = EnemyState.Dead;
-            Released?.Invoke(this, false);
+            Released?.Invoke(this, ReleaseReason.Impact);
         }
 
         private bool HasFallenBehind(float carDistance)

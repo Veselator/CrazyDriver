@@ -32,13 +32,14 @@ namespace CrazyDriver.Editor
         /// here more than once.
         /// </para>
         /// </summary>
-        [MenuItem("CrazyDriver/Force Rebuild Prefabs", priority = 20)]
+        [MenuItem("CrazyDriver/Force Rebuild Prefabs And Data", priority = 20)]
         public static void ForceRebuildPrefabs()
         {
             bool confirmed = EditorUtility.DisplayDialog(
-                "Force rebuild prefabs?",
-                "Existing prefabs will be replaced. Anything a scene instance added on top of them " +
-                "-- hand-placed children, tweaked components -- is discarded.",
+                "Force rebuild prefabs and data?",
+                "Existing prefabs AND both config assets will be replaced. Anything a scene instance " +
+                "added on top of a prefab, and every value tuned by hand in GameConstants or the " +
+                "level asset, is discarded.",
                 "Overwrite", "Cancel");
 
             if (!confirmed)
@@ -49,15 +50,18 @@ namespace CrazyDriver.Editor
             try
             {
                 PrefabBuilder.Overwrite = true;
+                GameAssetBuilder.Overwrite = true;
+
                 PrefabBuilder.BuildAll();
+                GameAssetBuilder.BuildAll();
             }
             finally
             {
                 PrefabBuilder.Overwrite = false;
+                GameAssetBuilder.Overwrite = false;
             }
 
-            GameAssetBuilder.BuildAll();
-            Debug.Log("[CrazyDriver] Prefabs force-rebuilt.");
+            Debug.Log("[CrazyDriver] Prefabs and data force-rebuilt.");
         }
     }
 }

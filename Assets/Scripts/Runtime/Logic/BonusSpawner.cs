@@ -19,6 +19,7 @@ namespace CrazyDriver.Logic
         [SerializeField] private PathTracker _path;
         [SerializeField] private Transform _root;
         [SerializeField] private VfxPool _vfx;
+        [SerializeField] private PopupPool _popups;
 
         private readonly List<Stack<Bonus>> _pools = new();
         private readonly Dictionary<Bonus, int> _poolOf = new(32);
@@ -134,10 +135,10 @@ namespace CrazyDriver.Logic
             {
                 _wallet.Add(bonus.CoinReward);
 
-                if (_vfx != null)
-                {
-                    _vfx.Play(bonus.transform.position + Vector3.up, CoinColor);
-                }
+                Vector3 at = bonus.transform.position + Vector3.up;
+
+                _vfx?.Play(at, CoinColor);
+                _popups?.Play($"+{bonus.CoinReward}", CoinColor, at + Vector3.up);
             }
 
             _active.Remove(bonus);

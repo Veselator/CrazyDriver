@@ -6,6 +6,7 @@ using CrazyDriver.Input;
 using CrazyDriver.Level;
 using CrazyDriver.Paths;
 using CrazyDriver.Progression;
+using CrazyDriver.UI;
 using CrazyDriver.View;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -57,6 +58,7 @@ namespace CrazyDriver.Logic
         [Header("Presentation")]
         [SerializeField] private CameraRig _camera;
         [SerializeField] private GateView _gate;
+        [SerializeField] private CountdownView _countdown;
 
         [Header("Debug")]
         [SerializeField, Tooltip("Leave at 0 to roll a fresh layout every run. Any other value " +
@@ -172,6 +174,7 @@ namespace CrazyDriver.Logic
             _road.Load(Plan);
 
             _gate.Close(_path);
+            _countdown?.Hide();
             _camera.SetPlaying(false);
             _camera.Snap(_car);
 
@@ -218,7 +221,17 @@ namespace CrazyDriver.Logic
 
             try
             {
+                // Three beats, in order, each waiting on the one before: the camera swings to its
+                // driving framing, the countdown runs to Go, and only then does the gate open.
                 _camera.SetPlaying(true);
+                await UniTask.Delay(
+                    TimeSpan.FromSeconds(_constants.Camera.StateBlendDuration),
+                    cancellationToken: cancellationToken);
+
+                if (_countdown != null)
+                {
+                    await _countdown.PlayAsync(cancellationToken);
+                }
 
                 // The gate keeps opening while the car pulls away, rather than the player waiting
                 // for the animation to finish. The delay is only long enough that the car never

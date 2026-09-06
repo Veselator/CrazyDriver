@@ -21,10 +21,13 @@ namespace CrazyDriver.Logic
     public sealed class EnemySpawner : MonoBehaviour
     {
         private static readonly Color DeathColor = new(0.9f, 0.18f, 0.18f);
+        private static readonly Color DamageColor = new(1f, 0.35f, 0.3f);
 
         [SerializeField] private PathTracker _path;
         [SerializeField] private Transform _root;
         [SerializeField] private VfxPool _vfx;
+        [SerializeField] private PopupPool _popups;
+        [SerializeField] private CameraShake _shake;
         [SerializeField, Min(0)] private int _prewarm = 16;
 
         private readonly Stack<Enemy> _free = new();
@@ -118,18 +121,22 @@ namespace CrazyDriver.Logic
             return enemy;
         }
 
-        private void OnReleased(Enemy enemy, bool killedByPlayer)
+        private void OnReleased(Enemy enemy, ReleaseReason reason)
         {
-            if (killedByPlayer)
+            Vector3 at = enemy.transform.position + Vector3.up;
+
+            if (reason == ReleaseReason.Shot)
             {
                 KillCount++;
+                _vfx?.Play(at, DeathColor);
             }
-
-            // Only a shot enemy bursts. One destroyed on the bumper already produced an impact, and
-            // a second effect on top of it just reads as noise.
-            if (killedByPlayer && _vfx != null)
+            else if (reason == ReleaseReason.Impact)
             {
-                _vfx.Play(enemy.transform.position + Vector3.up, DeathColor);
+                // The hit is the one moment the player needs to feel rather than read, so it gets
+                // the number, the burst and the shake together.
+                _vfx?.Play(at, DamageColor);
+                _popups?.Play($"-{Mathf.RoundToInt(_constants.Enemy.CollisionDamage)}", DamageColor, at + Vector3.up);
+                _shake?.Shake();
             }
 
             _active.Remove(enemy);

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5524882411845705780}
   - component: {fileID: 561251281803095795}
   - component: {fileID: 442182300009547626}
+  - component: {fileID: 6924413606903034830}
   m_Layer: 8
   m_Name: Enemy
   m_TagString: Untagged
@@ -61,6 +62,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.View.EnemyView
   _enemy: {fileID: 5524882411845705780}
   _animator: {fileID: 2313982073533532036}
+  _flash: {fileID: 6924413606903034830}
 --- !u!136 &442182300009547626
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -84,6 +86,23 @@ CapsuleCollider:
   m_Height: 1.8
   m_Direction: 1
   m_Center: {x: 0, y: 0.9, z: 0}
+--- !u!114 &6924413606903034830
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2208895892764331430}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11536aff9a0e2254ea6af41b7dd1bde0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.View.FlashOnHit
+  _renderers:
+  - {fileID: 1842499738312638457}
+  _color: {r: 1, g: 1, b: 1, a: 1}
+  _brightness: 2.5
+  _duration: 0.12
 --- !u!1 &3969208043088299952
 GameObject:
   m_ObjectHideFlags: 0
@@ -151,7 +170,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8c2477042a95b2d47b3ce83cb703cba5, type: 2}
+  - {fileID: 2100000, guid: 2a8518ae7e2fdc5498edf19faebdd52c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
