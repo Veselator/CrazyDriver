@@ -8,9 +8,9 @@ namespace CrazyDriver
     /// quieter pulse that keeps going until the run ends.
     /// <para>
     /// Two amplitudes on one continuous phase. The burst is the engine catching; the cruise pulse is
-    /// it running. Keeping a single phase accumulator is what makes the handover invisible -- the
-    /// burst ends on a whole number of swings, where the scale is exactly the base scale, so the
-    /// amplitude can change there without anything jumping.
+    /// it running. The burst decays into the cruise amplitude rather than holding its size and
+    /// cutting over, so there is no step at the handover and the first shake is the biggest one --
+    /// a constant-amplitude burst reads as a wobble, a decaying one reads as an engine starting.
     /// </para>
     /// <para>
     /// It scales a child visual, never the object carrying the simulation: the collider, the turret
@@ -37,6 +37,11 @@ namespace CrazyDriver
         [SerializeField, Min(0), Tooltip("How many swings the opening burst lasts. Zero skips it " +
              "and goes straight to the cruise pulse.")]
         private int _cycles = 3;
+
+        [SerializeField, Min(0.1f), Tooltip("How sharply the burst dies away into the cruise " +
+             "pulse. 1 is a straight ramp; higher drops fast and then trails off, which is what an " +
+             "engine catching sounds like.")]
+        private float _decay = 1.6f;
 
         [Header("While moving")]
         [SerializeField, Tooltip("Peak scale offset per axis for the rest of the run. Keep it well " +
@@ -144,7 +149,24 @@ namespace CrazyDriver
                 _phase = 0f;
             }
 
-            Apply(Mathf.Sin(_phase), _inBurst ? _amplitude : _amplitudeWhileMoving);
+            Apply(Mathf.Sin(_phase), CurrentAmplitude());
+        }
+
+        /// <summary>
+        /// The burst's amplitude falls from <see cref="_amplitude"/> to
+        /// <see cref="_amplitudeWhileMoving"/> across its swings, so it arrives at the cruise pulse
+        /// already the right size.
+        /// </summary>
+        private Vector3 CurrentAmplitude()
+        {
+            if (!_inBurst)
+            {
+                return _amplitudeWhileMoving;
+            }
+
+            float t = Mathf.Clamp01(_phase / (_cycles * Tau));
+
+            return Vector3.Lerp(_amplitudeWhileMoving, _amplitude, Mathf.Pow(1f - t, _decay));
         }
 
         private void Settle()

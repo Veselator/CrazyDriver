@@ -42,6 +42,17 @@ namespace CrazyDriver.Events
         /// </summary>
         public static event Action OnRunPrepared;
 
+        /// <summary>
+        /// The player has tapped and the opening sequence has begun -- camera, countdown, gate.
+        /// <para>
+        /// Separate from <see cref="OnRunStarted"/>, which lands several seconds later when the car
+        /// actually pulls away. Anything that has to react to the tap itself, rather than to the
+        /// car moving, belongs here: the start prompt has to leave the screen the moment it is
+        /// pressed, not once the countdown has finished.
+        /// </para>
+        /// </summary>
+        public static event Action OnRunStarting;
+
         /// <summary>The player has committed to a run and the car is pulling away.</summary>
         public static event Action OnRunStarted;
 
@@ -57,6 +68,8 @@ namespace CrazyDriver.Events
         public static void RaiseGameStarted() => OnGameStarted?.Invoke();
 
         public static void RaiseRunPrepared() => OnRunPrepared?.Invoke();
+
+        public static void RaiseRunStarting() => OnRunStarting?.Invoke();
 
         public static void RaiseRunStarted() => OnRunStarted?.Invoke();
 
@@ -82,6 +95,7 @@ namespace CrazyDriver.Events
         {
             OnGameStarted = null;
             OnRunPrepared = null;
+            OnRunStarting = null;
             OnRunStarted = null;
             OnWin = null;
             OnLose = null;

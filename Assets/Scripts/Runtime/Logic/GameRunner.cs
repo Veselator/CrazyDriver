@@ -222,6 +222,10 @@ namespace CrazyDriver.Logic
 
             _isStarting = true;
 
+            // Raised before the first await, so anything keyed to the tap itself reacts on the
+            // frame it happened rather than when the car finally moves.
+            GameEvents.RaiseRunStarting();
+
             try
             {
                 // Three beats, in order, each waiting on the one before: the camera swings to its
