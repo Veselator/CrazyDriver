@@ -4,12 +4,13 @@ using UnityEngine;
 namespace CrazyDriver
 {
     /// <summary>
-    /// Pulses the car's scale when it pulls away, and stops when the run ends.
+    /// Pulses the car's scale for the whole run: a short, larger burst as it pulls away, then a
+    /// quieter pulse that keeps going until the run ends.
     /// <para>
-    /// A ping-pong on the scale rather than a one-shot pop: the car is the only thing on screen that
-    /// never changes shape, so a single squash reads as a glitch while a rhythm reads as an engine.
-    /// The amplitude is per-axis, so the same component does a squash-and-stretch or a plain
-    /// breathing pulse depending on what is filled in.
+    /// Two amplitudes on one continuous phase. The burst is the engine catching; the cruise pulse is
+    /// it running. Keeping a single phase accumulator is what makes the handover invisible -- the
+    /// burst ends on a whole number of swings, where the scale is exactly the base scale, so the
+    /// amplitude can change there without anything jumping.
     /// </para>
     /// <para>
     /// It scales a child visual, never the object carrying the simulation: the collider, the turret
@@ -19,30 +20,46 @@ namespace CrazyDriver
     [DisallowMultipleComponent]
     public sealed class CarScalingAnim : MonoBehaviour
     {
+        private const float Tau = 2f * Mathf.PI;
+
         [SerializeField, Tooltip("What gets scaled. Defaults to this object.")]
         private Transform _target;
 
-        [SerializeField, Tooltip("Peak scale offset per axis, as a fraction of the base scale. " +
-             "(-0.06, 0.1, 0) is a squash-and-stretch; (0.05, 0.05, 0.05) is a breathing pulse.")]
+        [Header("Ignition")]
+        [SerializeField, Tooltip("Peak scale offset per axis during the opening burst, as a " +
+             "fraction of the base scale. (-0.06, 0.1, 0) is a squash-and-stretch; equal values " +
+             "are a plain breathing pulse.")]
         private Vector3 _amplitude = new(-0.05f, 0.09f, 0f);
 
-        [SerializeField, Min(0.01f), Tooltip("Seconds for one full out-and-back swing.")]
+        [SerializeField, Min(0.01f), Tooltip("Seconds for one full out-and-back swing of the burst.")]
         private float _cycleDuration = 0.42f;
 
-        [SerializeField, Min(0), Tooltip("How many swings to play when the car starts. Zero keeps " +
-             "pulsing for the whole run.")]
+        [SerializeField, Min(0), Tooltip("How many swings the opening burst lasts. Zero skips it " +
+             "and goes straight to the cruise pulse.")]
         private int _cycles = 3;
 
+        [Header("While moving")]
+        [SerializeField, Tooltip("Peak scale offset per axis for the rest of the run. Keep it well " +
+             "under the ignition amplitude -- this one is on screen for the whole drive.")]
+        private Vector3 _amplitudeWhileMoving = new(-0.015f, 0.03f, 0f);
+
+        [SerializeField, Min(0f), Tooltip("Swings per second while driving.")]
+        private float _speedWhileMoving = 2.2f;
+
+        [Header("Stop")]
         [SerializeField, Min(0f), Tooltip("Seconds for the pulse to fade back to nothing once the " +
              "run ends, so the car settles instead of snapping.")]
         private float _settleDuration = 0.35f;
 
         private Vector3 _baseScale = Vector3.one;
-        private float _elapsed;
-        private float _playDuration;
+
+        private float _phase;
         private bool _playing;
+        private bool _inBurst;
+
         private bool _settling;
-        private float _settleFrom;
+        private float _settleElapsed;
+        private Vector3 _settleFrom;
 
         private void Awake()
         {
@@ -70,61 +87,75 @@ namespace CrazyDriver
             _playing = false;
             _settling = false;
 
-            Apply(0f);
+            Apply(0f, _amplitude);
         }
 
         private void HandleStart()
         {
-            _elapsed = 0f;
+            _phase = 0f;
             _playing = true;
-            _settleFrom = 0f;
-
-            // Zero cycles means "for as long as the run lasts"; HandleFinish is what ends it.
-            _playDuration = _cycles > 0 ? _cycles * _cycleDuration : float.PositiveInfinity;
+            _inBurst = _cycles > 0;
+            _settling = false;
         }
 
-        private void HandleFinish(RunResult result) => Stop();
-
-        private void Stop()
+        private void HandleFinish(RunResult result)
         {
             if (!_playing)
             {
                 return;
             }
 
-            // Remembered so the settle fades out from wherever the swing happened to be, rather
-            // than jumping to the peak and easing down from there.
-            _settleFrom = Swing(_elapsed);
+            // Captured as the scale actually on screen, not as a swing value: the two phases use
+            // different amplitudes, so easing a scalar back to zero would settle to the wrong size.
+            _settleFrom = _target != null ? _target.localScale : _baseScale;
+
             _playing = false;
             _settling = true;
-            _elapsed = 0f;
+            _settleElapsed = 0f;
         }
 
         private void Update()
         {
             if (_playing)
             {
-                _elapsed += Time.deltaTime;
-
-                if (_elapsed >= _playDuration)
-                {
-                    Stop();
-                    return;
-                }
-
-                Apply(Swing(_elapsed));
+                Tick();
                 return;
             }
 
-            if (!_settling)
+            if (_settling)
             {
-                return;
+                Settle();
+            }
+        }
+
+        private void Tick()
+        {
+            float rate = _inBurst
+                ? Tau / _cycleDuration
+                : Tau * _speedWhileMoving;
+
+            _phase += rate * Time.deltaTime;
+
+            if (_inBurst && _phase >= _cycles * Tau)
+            {
+                // Restarted from zero rather than carried over: sin is the same at both, and the
+                // cruise pulse then begins from a clean phase whatever the burst length was.
+                _inBurst = false;
+                _phase = 0f;
             }
 
-            _elapsed += Time.deltaTime;
-            float t = _settleDuration > 0f ? Mathf.Clamp01(_elapsed / _settleDuration) : 1f;
+            Apply(Mathf.Sin(_phase), _inBurst ? _amplitude : _amplitudeWhileMoving);
+        }
 
-            Apply(Mathf.Lerp(_settleFrom, 0f, t));
+        private void Settle()
+        {
+            _settleElapsed += Time.deltaTime;
+            float t = _settleDuration > 0f ? Mathf.Clamp01(_settleElapsed / _settleDuration) : 1f;
+
+            if (_target != null)
+            {
+                _target.localScale = Vector3.Lerp(_settleFrom, _baseScale, Mathf.SmoothStep(0f, 1f, t));
+            }
 
             if (t >= 1f)
             {
@@ -132,10 +163,7 @@ namespace CrazyDriver
             }
         }
 
-        /// <summary>Position in the ping-pong, -1 to 1, as a smooth swing rather than a triangle.</summary>
-        private float Swing(float time) => Mathf.Sin(time / _cycleDuration * 2f * Mathf.PI);
-
-        private void Apply(float swing)
+        private void Apply(float swing, Vector3 amplitude)
         {
             if (_target == null)
             {
@@ -143,9 +171,9 @@ namespace CrazyDriver
             }
 
             _target.localScale = new Vector3(
-                _baseScale.x * (1f + _amplitude.x * swing),
-                _baseScale.y * (1f + _amplitude.y * swing),
-                _baseScale.z * (1f + _amplitude.z * swing));
+                _baseScale.x * (1f + amplitude.x * swing),
+                _baseScale.y * (1f + amplitude.y * swing),
+                _baseScale.z * (1f + amplitude.z * swing));
         }
     }
 }
