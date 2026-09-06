@@ -1,0 +1,19 @@
+{
+    "name": "CrazyDriver.Runtime",
+    "rootNamespace": "CrazyDriver",
+    "references": [
+        "VContainer",
+        "UniTask",
+        "Unity.InputSystem",
+        "Unity.TextMeshPro"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using CrazyDriver.Core.Configuration;
-using CrazyDriver.Core.Level;
-using CrazyDriver.Core.Path;
-using CrazyDriver.Game.Data;
+using CrazyDriver.Config;
+using CrazyDriver.Level;
+using CrazyDriver.Paths;
+using CrazyDriver.Config;
 using UnityEngine;
 using VContainer;
 using Random = System.Random;

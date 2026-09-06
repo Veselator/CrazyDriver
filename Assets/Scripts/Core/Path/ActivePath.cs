@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace CrazyDriver.Core.Path
+namespace CrazyDriver.Paths
 {
     /// <summary>
     /// The path currently being played, behind a stable reference.

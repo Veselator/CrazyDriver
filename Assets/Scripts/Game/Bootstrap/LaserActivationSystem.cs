@@ -40,7 +40,7 @@ namespace CrazyDriver.Game.Bootstrap
             _run.RunFinished -= OnRunFinished;
         }
 
-        private void OnRunPrepared(Core.Level.LevelPlan plan) => _laser.SetVisible(false);
+        private void OnRunPrepared(Level.LevelPlan plan) => _laser.SetVisible(false);
 
         private void OnRunStarted() => _laser.PlayActivation();
 

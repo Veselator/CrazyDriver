@@ -1,6 +1,6 @@
 using CrazyDriver.Core.Combat;
 using CrazyDriver.Core.Economy;
-using CrazyDriver.Core.Path;
+using CrazyDriver.Paths;
 using CrazyDriver.Core.Run;
 using TMPro;
 using UnityEngine;

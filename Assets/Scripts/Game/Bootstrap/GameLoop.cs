@@ -1,4 +1,4 @@
-using CrazyDriver.Core.Path;
+using CrazyDriver.Paths;
 using CrazyDriver.Core.Run;
 using CrazyDriver.Game.Views;
 using UnityEngine;

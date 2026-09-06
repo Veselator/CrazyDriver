@@ -1,5 +1,5 @@
 using System.IO;
-using CrazyDriver.Game.Data;
+using CrazyDriver.Config;
 using UnityEditor;
 using UnityEngine;
 

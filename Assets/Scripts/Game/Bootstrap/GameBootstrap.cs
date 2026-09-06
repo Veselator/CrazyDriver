@@ -1,11 +1,11 @@
 using System;
 using System.Threading;
 using CrazyDriver.Core.Car;
-using CrazyDriver.Core.Configuration;
+using CrazyDriver.Config;
 using CrazyDriver.Core.Economy;
-using CrazyDriver.Core.Level;
-using CrazyDriver.Core.Path;
-using CrazyDriver.Core.Progression;
+using CrazyDriver.Level;
+using CrazyDriver.Paths;
+using CrazyDriver.Progression;
 using CrazyDriver.Core.Run;
 using CrazyDriver.Game.Input;
 using CrazyDriver.Game.UI;

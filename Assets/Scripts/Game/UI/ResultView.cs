@@ -1,4 +1,4 @@
-using CrazyDriver.Core.Progression;
+using CrazyDriver.Progression;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;

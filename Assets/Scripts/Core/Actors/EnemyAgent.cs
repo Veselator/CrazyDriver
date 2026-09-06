@@ -1,5 +1,6 @@
 using CrazyDriver.Core.Combat;
-using CrazyDriver.Core.Configuration;
+using CrazyDriver.Config;
+using CrazyDriver.Combat;
 using UnityEngine;
 
 namespace CrazyDriver.Core.Actors

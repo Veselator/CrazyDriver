@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using CrazyDriver.Core.Car;
-using CrazyDriver.Core.Configuration;
-using CrazyDriver.Core.Level;
-using CrazyDriver.Core.Path;
-using CrazyDriver.Core.Pooling;
+using CrazyDriver.Config;
+using CrazyDriver.Level;
+using CrazyDriver.Paths;
+using CrazyDriver.Pooling;
 using UnityEngine;
 
 namespace CrazyDriver.Core.Actors

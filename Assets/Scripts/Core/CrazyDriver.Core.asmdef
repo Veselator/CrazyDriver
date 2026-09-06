@@ -1,7 +1,9 @@
 {
     "name": "CrazyDriver.Core",
     "rootNamespace": "CrazyDriver.Core",
-    "references": [],
+    "references": [
+        "CrazyDriver.Runtime"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

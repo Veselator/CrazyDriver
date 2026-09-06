@@ -1,5 +1,5 @@
 using System;
-using CrazyDriver.Core.Configuration;
+using CrazyDriver.Config;
 
 namespace CrazyDriver.Core.Combat
 {

@@ -3,8 +3,8 @@ using CrazyDriver.Core.Actors;
 using CrazyDriver.Core.Car;
 using CrazyDriver.Core.Combat;
 using CrazyDriver.Core.Economy;
-using CrazyDriver.Core.Level;
-using CrazyDriver.Core.Path;
+using CrazyDriver.Level;
+using CrazyDriver.Paths;
 using UnityEngine;
 
 namespace CrazyDriver.Core.Run

@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using CrazyDriver.Core.Configuration;
+using CrazyDriver.Config;
 using UnityEngine;
 
 namespace CrazyDriver.Game.Views

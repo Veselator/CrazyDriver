@@ -1,6 +1,6 @@
 using System.Threading;
-using CrazyDriver.Core.Configuration;
-using CrazyDriver.Core.Path;
+using CrazyDriver.Config;
+using CrazyDriver.Paths;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using VContainer;

@@ -2,6 +2,7 @@
     "name": "CrazyDriver.Editor",
     "rootNamespace": "CrazyDriver.Editor",
     "references": [
+        "CrazyDriver.Runtime",
         "CrazyDriver.Core",
         "CrazyDriver.Game",
         "VContainer",

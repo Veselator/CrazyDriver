@@ -1,4 +1,4 @@
-using CrazyDriver.Core.Configuration;
+using CrazyDriver.Config;
 using UnityEngine;
 
 namespace CrazyDriver.Core.Combat

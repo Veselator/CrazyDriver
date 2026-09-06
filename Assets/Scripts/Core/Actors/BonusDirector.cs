@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using CrazyDriver.Core.Configuration;
+using CrazyDriver.Config;
 using CrazyDriver.Core.Economy;
-using CrazyDriver.Core.Level;
-using CrazyDriver.Core.Path;
-using CrazyDriver.Core.Pooling;
+using CrazyDriver.Level;
+using CrazyDriver.Paths;
+using CrazyDriver.Pooling;
 
 namespace CrazyDriver.Core.Actors
 {

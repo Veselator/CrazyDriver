@@ -2,6 +2,7 @@
     "name": "CrazyDriver.Game",
     "rootNamespace": "CrazyDriver.Game",
     "references": [
+        "CrazyDriver.Runtime",
         "CrazyDriver.Core",
         "VContainer",
         "UniTask",

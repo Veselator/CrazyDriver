@@ -1,5 +1,5 @@
-using CrazyDriver.Core.Configuration;
-using CrazyDriver.Core.Path;
+using CrazyDriver.Config;
+using CrazyDriver.Paths;
 using UnityEngine;
 
 namespace CrazyDriver.Core.Car

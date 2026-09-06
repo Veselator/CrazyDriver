@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace CrazyDriver.Core.Path
+namespace CrazyDriver.Paths
 {
     /// <summary>
     /// The single source of truth for how far the car has travelled, in absolute meters.

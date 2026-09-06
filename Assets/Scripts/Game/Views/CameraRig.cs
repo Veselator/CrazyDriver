@@ -1,5 +1,5 @@
 using CrazyDriver.Core.Car;
-using CrazyDriver.Core.Configuration;
+using CrazyDriver.Config;
 using UnityEngine;
 using VContainer;
 
