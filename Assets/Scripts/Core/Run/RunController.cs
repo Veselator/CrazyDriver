@@ -17,7 +17,7 @@ namespace CrazyDriver.Core.Run
     /// <see cref="Tick"/> once per frame and it renders whatever state this produces.
     /// </para>
     /// </summary>
-    public sealed class RunController
+    public sealed class RunController : IDisposable
     {
         private readonly GameStateMachine _stateMachine;
         private readonly LevelGenerator _generator;
@@ -64,6 +64,21 @@ namespace CrazyDriver.Core.Run
 
             _enemies.CarDamaged += OnCarDamaged;
             _carHealth.Died += OnCarDestroyed;
+        }
+
+        /// <summary>
+        /// Releases the two subscriptions taken in the constructor.
+        /// <para>
+        /// Both publishers are singletons with the same lifetime as this object, so nothing leaks
+        /// today either way. It is here so that every subscription in the project has a visible
+        /// matching release: an asymmetry that happens to be harmless is still the one place a
+        /// reader has to stop and reason about lifetimes to be sure.
+        /// </para>
+        /// </summary>
+        public void Dispose()
+        {
+            _enemies.CarDamaged -= OnCarDamaged;
+            _carHealth.Died -= OnCarDestroyed;
         }
 
         /// <summary>Raised once a fresh level plan exists, before the player taps to start.</summary>
