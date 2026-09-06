@@ -30,8 +30,9 @@ VContainer injection.
 ```
 Runtime/Events    GameEvents - the static bus
 Runtime/Logic     the simulation: PathTracker, CarMotor, TurretAim, AutoCannon, CarHealth,
-                  CoinWallet, EnemySpawner, BonusSpawner, ProjectileController, GameRunner
-Runtime/Actors    Enemy and Bonus, the components on their pooled prefabs
+                  CoinWallet, EnemySpawner, BonusSpawner, MapObjectsManager,
+                  ProjectileController, GameRunner
+Runtime/Actors    Enemy (abstract) with SimpleEnemy, and Bonus: the components on pooled prefabs
 Runtime/View      components that only read state and draw
 Runtime/UI        HUD and result screen
 Runtime/Paths, Level, Config, Progression, Pooling, Combat   plain classes: maths and data
@@ -119,6 +120,38 @@ lookup table is needed. Curves would need one -- which is exactly why the abstra
 was generated at and wakes when the car comes within range of it. That is two floats, frame-rate
 independent, needs no collider or rigidbody, and does not care what the physics broadphase is doing.
 
+### Enemy kinds
+
+`Enemy` is abstract. It owns everything every enemy must have -- health, the activation rule, the
+retire rule, the `Released` and `Damaged` events -- and leaves `Tick` to the subclass. `SimpleEnemy`
+is the ground runner the brief describes; a flier is a second subclass and a second prefab, and
+nothing else changes.
+
+All of an enemy's tuning is serialized **on its own prefab** rather than in the shared constants
+asset, because the numbers only mean anything next to the behaviour reading them. A level lists the
+kinds it can roll:
+
+```csharp
+[Serializable]
+public struct EnemyEntry
+{
+    public Enemy enemyPrefab;   // any subclass
+    public float relativePart;  // share of the population, relative to the other entries
+}
+```
+
+The generator picks an entry per spawn slot by weight and asks that prefab, not a global settings
+object, whether it could intercept the car from the offset it rolled. The spawner keeps one pool per
+entry and streams whichever kind the plan asked for.
+
+### Map objects
+
+Scenery is authored per map as `MapObjectData` -- a prefab, a distance, an offset in road-local axes
+and a yaw -- and streamed by `MapObjectsManager`. It has no `Update`: the car is the only thing that
+moves the world, and it reports that through `PathTracker.DistanceChanged`, so the manager reacts to
+that event and standing still costs nothing. Activation walks the distance-sorted list with a single
+head index and objects that fall far enough behind go back to their pool.
+
 ## Player data
 
 There is a real save, not just an in-run counter.
@@ -148,7 +181,10 @@ counter -- and nothing in the simulation depends on any of it.
 
 - **Damage and coin popups** — pooled world-space TextMeshPro labels that rise on a decelerating
   curve, fade late so the number stays readable, and take a small random sideways offset so several
-  hits in one spot do not stack into a smear.
+  hits in one spot do not stack into a smear. Every hit on an enemy throws its number, in pale yellow
+  while it survives and larger and red for the killing blow; without that a tough enemy is
+  indistinguishable from a missed shot. The car's own damage number comes from `CarHealth.Damaged`
+  rather than from the enemy that caused it, so any future source of damage gets the same feedback.
 - **Particle bursts** on every enemy death and bonus pickup, pooled and tinted per burst. The tint
   goes through a `MaterialPropertyBlock` rather than the particle system's start colour: mesh
   particles carry no colour vertex stream, so a start colour never reaches the shader and every
@@ -181,8 +217,8 @@ bug rather than as a hit.
 **Enemies aim where the car *will* be.** The car is twice as fast as an enemy, so chasing its current
 position is a tail chase that can never be won and the game would have no fail state. `interceptLead`
 turns the same speed budget into an interception. The level generator refuses to place an enemy where
-`EnemySettings.CanIntercept` says it could never engage, and `GameConstantsSO.OnValidate` warns if the
-speeds are tuned into that corner.
+that prefab's own `CanIntercept` says it could never engage, pulling the spawn towards the centerline
+until it can.
 
 **The turret's aim is stored against the path, not the car.** If the turret were simply a child of the
 car, the car's sway would rotate the barrel while the player's finger was still. The angle is held

@@ -1,6 +1,5 @@
 using System;
 using CrazyDriver.Combat;
-using CrazyDriver.Config;
 using CrazyDriver.Logic;
 using UnityEngine;
 
@@ -11,7 +10,7 @@ namespace CrazyDriver.Actors
         /// <summary>Standing on the map, waiting for the car to come within activation distance.</summary>
         Idle,
 
-        /// <summary>Running at the car's projected position.</summary>
+        /// <summary>Awake and acting on the car.</summary>
         Chasing,
 
         /// <summary>Reached the car this frame. Destroyed by the impact immediately after.</summary>
@@ -34,19 +33,32 @@ namespace CrazyDriver.Actors
     }
 
     /// <summary>
-    /// One enemy: its state, its health and its movement. The matching <see cref="EnemyView"/> reads
-    /// <see cref="State"/> and drives the visuals, and never touches any of this.
+    /// What every enemy has regardless of how it behaves: health, the activation rule, the retire
+    /// rule, and the two events the spawner listens to. Behaviour is left to the subclass.
+    /// <para>
+    /// Everything here is tuned on the prefab rather than in a shared settings block, because the
+    /// numbers only mean anything next to the behaviour that reads them. A flier's climb rate and a
+    /// runner's ground speed are not the same quantity, and one shared asset holding both would
+    /// grow a field per enemy type that every other type ignores.
+    /// </para>
+    /// <para>
+    /// The matching <see cref="View.EnemyView"/> reads <see cref="State"/> and drives the visuals,
+    /// and never touches any of this.
+    /// </para>
     /// </summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(ExecutionOrder.Enemies)]
-    public sealed class Enemy : MonoBehaviour, IDamageable
+    public abstract class Enemy : MonoBehaviour, IDamageable
     {
-        private EnemySettings _settings;
-        private CarMotor _car;
-        private PathTracker _path;
-        private CarHealth _carHealth;
+        [Header("Enemy")]
+        [SerializeField, Min(1f)] private float _maxHealth = 100f;
 
-        private float _health;
+        [SerializeField, Min(0f), Tooltip("How far ahead of the car, in meters of travelled " +
+             "distance, this enemy wakes up. A pure distance comparison, not a physics trigger.")]
+        private float _activationDistance = 66.6f;
+
+        [SerializeField, Min(0f), Tooltip("Meters behind the car after which the enemy is pooled again.")]
+        private float _despawnDistanceBehind = 25f;
 
         /// <summary>
         /// Raised when the enemy leaves play, carrying why.
@@ -57,31 +69,49 @@ namespace CrazyDriver.Actors
         /// </summary>
         public event Action<Enemy, ReleaseReason> Released;
 
-        /// <summary>Raised on a hit that did not kill, so the view can flash.</summary>
-        public event Action Damaged;
+        /// <summary>
+        /// Raised on every hit that lands, carrying the damage actually applied -- clamped to the
+        /// health remaining, so the number on screen is never larger than the life it took.
+        /// </summary>
+        public event Action<Enemy, float> Damaged;
 
-        public EnemyState State { get; private set; } = EnemyState.Dead;
+        /// <summary>The car this enemy is acting on. Available from <see cref="Bind"/> onwards.</summary>
+        protected CarMotor Car { get; private set; }
+
+        /// <summary>Distance and curve for the run. Activation is measured against this.</summary>
+        protected PathTracker Path { get; private set; }
+
+        /// <summary>The car's hit points, for enemies that damage it.</summary>
+        protected CarHealth CarHealth { get; private set; }
+
+        public EnemyState State { get; protected set; } = EnemyState.Dead;
 
         /// <summary>Distance along the path this enemy was generated at.</summary>
         public float SpawnDistance { get; private set; }
 
+        public float Health { get; private set; }
+
+        public float MaxHealth => _maxHealth;
+
+        /// <summary>Read by the spawner to decide how far ahead of the car to stream enemies in.</summary>
+        public float ActivationDistance => _activationDistance;
+
         public bool IsAlive => State != EnemyState.Dead;
 
         /// <summary>Called once by the pool when the instance is created.</summary>
-        public void Bind(EnemySettings settings, CarMotor car, PathTracker path, CarHealth carHealth)
+        public void Bind(CarMotor car, PathTracker path, CarHealth carHealth)
         {
-            _settings = settings;
-            _car = car;
-            _path = path;
-            _carHealth = carHealth;
+            Car = car;
+            Path = path;
+            CarHealth = carHealth;
         }
 
-        public void Activate(Vector3 position, Quaternion rotation, float spawnDistance)
+        public virtual void Activate(Vector3 position, Quaternion rotation, float spawnDistance)
         {
             transform.SetPositionAndRotation(position, rotation);
 
             SpawnDistance = spawnDistance;
-            _health = _settings.MaxHealth;
+            Health = _maxHealth;
             State = EnemyState.Idle;
         }
 
@@ -92,29 +122,28 @@ namespace CrazyDriver.Actors
                 return;
             }
 
-            _health -= amount;
-            if (_health > 0f)
+            // Clamped to what is left, so the popup over a dying enemy reads the life it actually
+            // took rather than the weapon's nominal damage.
+            float applied = Mathf.Min(amount, Health);
+            Health -= applied;
+
+            Damaged?.Invoke(this, applied);
+
+            if (Health > 0f)
             {
-                Damaged?.Invoke();
                 return;
             }
 
-            State = EnemyState.Dead;
-            Released?.Invoke(this, ReleaseReason.Shot);
+            Release(ReleaseReason.Shot);
         }
 
         /// <summary>Retire without counting as a kill: it fell behind, or the run ended.</summary>
-        public void Retire()
-        {
-            if (!IsAlive)
-            {
-                return;
-            }
+        public void Retire() => Release(ReleaseReason.Retired);
 
-            State = EnemyState.Dead;
-            Released?.Invoke(this, ReleaseReason.Retired);
-        }
-
+        /// <summary>
+        /// The activation and retirement rules, which are the same for every enemy. What happens in
+        /// between belongs to the subclass, in <see cref="Tick"/>.
+        /// </summary>
         private void Update()
         {
             if (!IsAlive)
@@ -122,84 +151,67 @@ namespace CrazyDriver.Actors
                 return;
             }
 
-            float carDistance = _path.Distance;
+            float carDistance = Path.Distance;
 
             if (State == EnemyState.Idle)
             {
                 // Activation is a distance comparison along the path, not a physics trigger: it
                 // costs two floats, is frame-rate independent, and needs no collider or rigidbody.
-                if (SpawnDistance - carDistance > _settings.ActivationDistance)
+                if (SpawnDistance - carDistance > _activationDistance)
                 {
                     return;
                 }
 
                 State = EnemyState.Chasing;
+                OnActivated();
             }
 
-            Vector3 toCar = _car.Position - transform.position;
-            float distanceToCar = toCar.magnitude;
+            Tick(carDistance);
 
-            if (distanceToCar <= _settings.AttackRange)
-            {
-                Collide();
-                return;
-            }
-
-            State = EnemyState.Chasing;
-            Chase(distanceToCar);
-            FaceCar();
-
-            if (HasFallenBehind(carDistance))
+            if (IsAlive && HasFallenBehind())
             {
                 Retire();
             }
         }
 
-        private void Chase(float distanceToCar)
-        {
-            // Chasing the car's *current* position is a tail chase the enemy can never win, because
-            // the car is faster. Aiming at where the car will be by the time we arrive turns the
-            // same speed budget into an interception.
-            float timeToReach = _settings.MoveSpeed > 0f ? distanceToCar / _settings.MoveSpeed : 0f;
-            Vector3 aimPoint = _car.Position + _car.Velocity * (timeToReach * _settings.InterceptLead);
+        /// <summary>One frame of behaviour, called only while awake and alive.</summary>
+        protected abstract void Tick(float carDistance);
 
-            Vector3 step = (aimPoint - transform.position).normalized * (_settings.MoveSpeed * Time.deltaTime);
-            transform.position += step;
+        /// <summary>Called on the frame the enemy wakes up. Nothing to do by default.</summary>
+        protected virtual void OnActivated()
+        {
         }
 
-        private void Collide()
+        /// <summary>Leaves play for the given reason. Safe to call twice.</summary>
+        protected void Release(ReleaseReason reason)
         {
-            // The enemy is destroyed by its own impact, so the damage lands exactly once. A
-            // sustained damage-per-second would instead leave the survivor jogging alongside the
-            // car draining it, which reads as a bug rather than as a hit.
-            State = EnemyState.Colliding;
-            FaceCar();
-
-            _carHealth.TakeDamage(_settings.CollisionDamage);
+            if (!IsAlive)
+            {
+                return;
+            }
 
             State = EnemyState.Dead;
-            Released?.Invoke(this, ReleaseReason.Impact);
+            Released?.Invoke(this, reason);
         }
 
-        private bool HasFallenBehind(float carDistance)
+        /// <summary>
+        /// True once the car has driven far enough past. Projects the offset onto the path's forward
+        /// axis: straight-line distance would keep an enemy alive forever while it ran alongside.
+        /// </summary>
+        protected virtual bool HasFallenBehind()
         {
-            // Project the offset from the car onto the path's forward axis. Straight-line distance
-            // would keep an enemy alive forever while it ran alongside the car.
-            Vector3 forward = _car.PathRotation * Vector3.forward;
-            float along = Vector3.Dot(transform.position - _car.Position, forward);
+            Vector3 forward = Car.PathRotation * Vector3.forward;
+            float along = Vector3.Dot(transform.position - Car.Position, forward);
 
-            return -along > _settings.DespawnDistanceBehind;
+            return -along > _despawnDistanceBehind;
         }
 
-        private void FaceCar()
-        {
-            Vector3 flat = _car.Position - transform.position;
-            flat.y = 0f;
-
-            if (flat.sqrMagnitude > 0.0001f)
-            {
-                transform.rotation = Quaternion.LookRotation(flat, Vector3.up);
-            }
-        }
+        /// <summary>
+        /// Whether this enemy, woken at its activation distance, can reach a car travelling at
+        /// <paramref name="carSpeed"/> from <paramref name="lateralOffset"/> meters off the
+        /// centerline. The level generator asks the prefab before placing one, so an enemy that
+        /// could only ever stand and watch is pulled inwards until it can engage.
+        /// </summary>
+        public virtual bool CanIntercept(float lateralOffset, float carSpeed) => true;
     }
 }

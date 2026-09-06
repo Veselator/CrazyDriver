@@ -18,7 +18,6 @@ namespace CrazyDriver.Config
         [SerializeField] private CarSettings _car = new();
         [SerializeField] private TurretSettings _turret = new();
         [SerializeField] private WeaponSettings _weapon = new();
-        [SerializeField] private EnemySettings _enemy = new();
         [SerializeField] private CameraSettings _camera = new();
         [SerializeField] private RoadSettings _road = new();
         [SerializeField] private GateSettings _gate = new();
@@ -30,27 +29,11 @@ namespace CrazyDriver.Config
         public CarSettings Car => _car;
         public TurretSettings Turret => _turret;
         public WeaponSettings Weapon => _weapon;
-        public EnemySettings Enemy => _enemy;
         public CameraSettings Camera => _camera;
         public RoadSettings Road => _road;
         public GateSettings Gate => _gate;
 
         public LayerMask ProjectileHitMask => _projectileHitMask;
-
-        private void OnValidate()
-        {
-            // Surface the intercept constraint at authoring time. A designer who raises the car's
-            // speed without touching the enemy has just made every enemy on the map harmless, and
-            // that failure is completely invisible in play.
-            if (!_enemy.CanIntercept(_road.HalfWidth, _car.Speed))
-            {
-                Debug.LogWarning(
-                    $"[{name}] Enemies spawned at the road edge cannot reach the car: " +
-                    "raise Enemy.MoveSpeed or Enemy.ActivationDistance, or lower Car.Speed. " +
-                    "The level generator will pull such spawns towards the centerline to compensate.",
-                    this);
-            }
-        }
 
         /// <summary>
         /// Largest gap that will open between the smooth path and the flat road tiles laid along it,

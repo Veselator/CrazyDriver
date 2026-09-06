@@ -31,6 +31,9 @@ namespace CrazyDriver.Level
         [SerializeField, Tooltip("Meters at the end of the map kept clear of spawns.")]
         [Min(0f)] private float _endClearance = 25f;
 
+        [SerializeField, Tooltip("Hand-placed scenery, each at its own distance along the road.")]
+        private MapObjectData[] _mapObjects = Array.Empty<MapObjectData>();
+
         [SerializeField] private HeightProfileSettings _heightProfile = new();
 
         public string Name => _name;
@@ -47,6 +50,9 @@ namespace CrazyDriver.Level
         public float StartClearance => _startClearance;
 
         public float EndClearance => _endClearance;
+
+        /// <summary>Authored scenery. Sorted by distance when the plan is built.</summary>
+        public MapObjectData[] MapObjects => _mapObjects;
 
         public HeightProfileSettings HeightProfile => _heightProfile;
     }

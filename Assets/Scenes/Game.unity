@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 31469312}
   - component: {fileID: 31469313}
   - component: {fileID: 31469314}
+  - component: {fileID: 31469315}
   m_Layer: 0
   m_Name: Feedback
   m_TagString: Untagged
@@ -184,6 +185,23 @@ MonoBehaviour:
   _root: {fileID: 31469312}
   _viewer: {fileID: 1096613563}
   _prewarm: 8
+--- !u!114 &31469315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 31469311}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 870035720bd0bf748b982b9f28a77343, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.View.CarDamageFeedback
+  _health: {fileID: 1049530121}
+  _car: {fileID: 631422865}
+  _popups: {fileID: 31469314}
+  _shake: {fileID: 1096613567}
+  _popupOffset: {x: 0, y: 2.6, z: 0}
 --- !u!1001 &631422856
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -236,113 +254,57 @@ PrefabInstance:
       propertyPath: m_Name
       value: Car
       objectReference: {fileID: 0}
-    - target: {fileID: 2713976638464662081, guid: af28257de986dc6428da1e87cd1718c9, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 13.9576845
-      objectReference: {fileID: 0}
-    - target: {fileID: 2713976638464662081, guid: af28257de986dc6428da1e87cd1718c9, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 15.28524
-      objectReference: {fileID: 0}
-    - target: {fileID: 4660058137420312209, guid: af28257de986dc6428da1e87cd1718c9, type: 3}
-      propertyPath: _motor
+    - target: {fileID: 3087933908391285448, guid: af28257de986dc6428da1e87cd1718c9, type: 3}
+      propertyPath: _projectiles
       value: 
-      objectReference: {fileID: 631422863}
-    - target: {fileID: 6763249332685353850, guid: af28257de986dc6428da1e87cd1718c9, type: 3}
-      propertyPath: _aim
+      objectReference: {fileID: 1049530118}
+    - target: {fileID: 9076278757306291264, guid: af28257de986dc6428da1e87cd1718c9, type: 3}
+      propertyPath: _path
       value: 
-      objectReference: {fileID: 631422862}
-    - target: {fileID: 6763249332685353850, guid: af28257de986dc6428da1e87cd1718c9, type: 3}
-      propertyPath: _motor
-      value: 
-      objectReference: {fileID: 631422863}
+      objectReference: {fileID: 1049530122}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 8218546886521510273, guid: af28257de986dc6428da1e87cd1718c9, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1396166527}
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 2096941129970017726, guid: af28257de986dc6428da1e87cd1718c9, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 631422863}
-    - targetCorrespondingSourceObject: {fileID: 9039988112543601834, guid: af28257de986dc6428da1e87cd1718c9, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 631422862}
-    - targetCorrespondingSourceObject: {fileID: 9039988112543601834, guid: af28257de986dc6428da1e87cd1718c9, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 631422861}
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: af28257de986dc6428da1e87cd1718c9, type: 3}
---- !u!114 &631422857 stripped
+--- !u!114 &631422861 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6763249332685353850, guid: af28257de986dc6428da1e87cd1718c9, type: 3}
+  m_CorrespondingSourceObject: {fileID: 3087933908391285448, guid: af28257de986dc6428da1e87cd1718c9, type: 3}
   m_PrefabInstance: {fileID: 631422856}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 631422859}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 174d3239b40acfa44bfe9ddcc50dafc3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.View.TurretView
---- !u!4 &631422858 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8218546886521510273, guid: af28257de986dc6428da1e87cd1718c9, type: 3}
-  m_PrefabInstance: {fileID: 631422856}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &631422859 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 9039988112543601834, guid: af28257de986dc6428da1e87cd1718c9, type: 3}
-  m_PrefabInstance: {fileID: 631422856}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &631422860 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2096941129970017726, guid: af28257de986dc6428da1e87cd1718c9, type: 3}
-  m_PrefabInstance: {fileID: 631422856}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &631422861
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 631422859}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4f5978a0bbb9064439d2a0a71716c476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.Logic.AutoCannon
-  _activeDuring: 2
-  _car: {fileID: 631422863}
-  _turret: {fileID: 631422862}
-  _turretView: {fileID: 631422857}
-  _projectiles: {fileID: 1049530118}
---- !u!114 &631422862
+--- !u!114 &631422862 stripped
 MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 6049606765167958401, guid: af28257de986dc6428da1e87cd1718c9, type: 3}
+  m_PrefabInstance: {fileID: 631422856}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 631422859}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 429b5313e0a31fa4d89eefd884a4b1b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.Logic.TurretAim
-  _activeDuring: 2
---- !u!114 &631422863
+--- !u!114 &631422863 stripped
 MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 9076278757306291264, guid: af28257de986dc6428da1e87cd1718c9, type: 3}
+  m_PrefabInstance: {fileID: 631422856}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 631422860}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4891446521025704491c7d6ce70cfcb8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.Logic.CarMotor
-  _activeDuring: 6
-  _path: {fileID: 1049530122}
+--- !u!4 &631422865 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 914987553751790475, guid: af28257de986dc6428da1e87cd1718c9, type: 3}
+  m_PrefabInstance: {fileID: 631422856}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &655836557
 GameObject:
   m_ObjectHideFlags: 0
@@ -400,18 +362,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1640650740920979878, guid: 353623b64ae57124d966d7b096d6b5ab, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1.5215
-      objectReference: {fileID: 0}
-    - target: {fileID: 1640650740920979878, guid: 353623b64ae57124d966d7b096d6b5ab, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1.5215
-      objectReference: {fileID: 0}
-    - target: {fileID: 1640650740920979878, guid: 353623b64ae57124d966d7b096d6b5ab, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 1.5215
-      objectReference: {fileID: 0}
     - target: {fileID: 1640650740920979878, guid: 353623b64ae57124d966d7b096d6b5ab, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -721,6 +671,7 @@ MonoBehaviour:
   _enemies: {fileID: 1052081038}
   _bonuses: {fileID: 1955140747}
   _projectiles: {fileID: 1049530118}
+  _mapObjects: {fileID: 1300446408}
   _road: {fileID: 1857720233}
   _camera: {fileID: 1096613562}
   _gate: {fileID: 801980897}
@@ -754,6 +705,7 @@ MonoBehaviour:
   _enemies: {fileID: 1052081038}
   _bonuses: {fileID: 1955140747}
   _projectiles: {fileID: 1049530118}
+  _mapObjects: {fileID: 1300446408}
   _runner: {fileID: 1049530123}
   _camera: {fileID: 1096613562}
   _road: {fileID: 1857720233}
@@ -839,8 +791,7 @@ MonoBehaviour:
   _root: {fileID: 1052081037}
   _vfx: {fileID: 31469313}
   _popups: {fileID: 31469314}
-  _shake: {fileID: 1096613567}
-  _prewarm: 16
+  _prewarmPerKind: 16
 --- !u!1 &1096613561
 GameObject:
   m_ObjectHideFlags: 0
@@ -1017,46 +968,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 3678760249010173785, guid: c6b7be11a69dca049a0d665efe2657b1, type: 3}
-      propertyPath: m_AdditionalShaderChannelsFlag
-      value: 25
-      objectReference: {fileID: 0}
     - target: {fileID: 3787256029635771522, guid: c6b7be11a69dca049a0d665efe2657b1, type: 3}
       propertyPath: _input
       value: 
       objectReference: {fileID: 1049530119}
-    - target: {fileID: 4440093127523155110, guid: c6b7be11a69dca049a0d665efe2657b1, type: 3}
-      propertyPath: m_TextStyleHashCode
-      value: -1183493901
-      objectReference: {fileID: 0}
-    - target: {fileID: 4697042224425261668, guid: c6b7be11a69dca049a0d665efe2657b1, type: 3}
-      propertyPath: m_TextStyleHashCode
-      value: -1183493901
-      objectReference: {fileID: 0}
-    - target: {fileID: 4955508695467762523, guid: c6b7be11a69dca049a0d665efe2657b1, type: 3}
-      propertyPath: m_TextStyleHashCode
-      value: -1183493901
-      objectReference: {fileID: 0}
-    - target: {fileID: 5618574634395269851, guid: c6b7be11a69dca049a0d665efe2657b1, type: 3}
-      propertyPath: m_TextStyleHashCode
-      value: -1183493901
-      objectReference: {fileID: 0}
-    - target: {fileID: 6131631635195742508, guid: c6b7be11a69dca049a0d665efe2657b1, type: 3}
-      propertyPath: _punchScale
-      value: 2.24
-      objectReference: {fileID: 0}
-    - target: {fileID: 6151127470127869733, guid: c6b7be11a69dca049a0d665efe2657b1, type: 3}
-      propertyPath: m_TextStyleHashCode
-      value: -1183493901
-      objectReference: {fileID: 0}
-    - target: {fileID: 6836409545092451383, guid: c6b7be11a69dca049a0d665efe2657b1, type: 3}
-      propertyPath: m_TextStyleHashCode
-      value: -1183493901
-      objectReference: {fileID: 0}
-    - target: {fileID: 7045867605332774389, guid: c6b7be11a69dca049a0d665efe2657b1, type: 3}
-      propertyPath: m_TextStyleHashCode
-      value: -1183493901
-      objectReference: {fileID: 0}
     - target: {fileID: 7838960539057310313, guid: c6b7be11a69dca049a0d665efe2657b1, type: 3}
       propertyPath: _run
       value: 
@@ -1065,10 +980,6 @@ PrefabInstance:
       propertyPath: _path
       value: 
       objectReference: {fileID: 1049530122}
-    - target: {fileID: 7838960539057310313, guid: c6b7be11a69dca049a0d665efe2657b1, type: 3}
-      propertyPath: _coins
-      value: 
-      objectReference: {fileID: 1123006414}
     - target: {fileID: 7838960539057310313, guid: c6b7be11a69dca049a0d665efe2657b1, type: 3}
       propertyPath: _health
       value: 
@@ -1164,10 +1075,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 6468699331056506606, guid: c6b7be11a69dca049a0d665efe2657b1, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1123006414}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c6b7be11a69dca049a0d665efe2657b1, type: 3}
 --- !u!114 &1123006411 stripped
 MonoBehaviour:
@@ -1180,41 +1088,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f071d571537ed34cb1bef2dac000fa6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CrazyDriver.Game::CrazyDriver.Game.UI.ResultView
---- !u!1 &1123006412 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6468699331056506606, guid: c6b7be11a69dca049a0d665efe2657b1, type: 3}
-  m_PrefabInstance: {fileID: 1123006410}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1123006413 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7045867605332774389, guid: c6b7be11a69dca049a0d665efe2657b1, type: 3}
-  m_PrefabInstance: {fileID: 1123006410}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1123006412}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
---- !u!114 &1123006414
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1123006412}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f7eaf394cb8b2641b0a49371adc57d5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.UI.CoinCounterView
-  _label: {fileID: 1123006413}
-  _baseColor: {r: 1, g: 1, b: 1, a: 1}
-  _gainColor: {r: 0.35, g: 0.95, b: 0.4, a: 1}
-  _lossColor: {r: 0.95, g: 0.3, b: 0.28, a: 1}
-  _flashInDuration: 0.5
-  _flashOutDuration: 0.5
-  _rollDuration: 0.4
 --- !u!114 &1123006415 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6131631635195742508, guid: c6b7be11a69dca049a0d665efe2657b1, type: 3}
@@ -1336,7 +1209,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1396166526
+--- !u!1 &1300446406
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1344,143 +1217,47 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1396166527}
-  - component: {fileID: 1396166531}
-  - component: {fileID: 1396166530}
-  - component: {fileID: 1396166529}
-  - component: {fileID: 1396166528}
+  - component: {fileID: 1300446407}
+  - component: {fileID: 1300446408}
   m_Layer: 0
-  m_Name: Laser
+  m_Name: MapObjects
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1396166527
+--- !u!4 &1300446407
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1396166526}
+  m_GameObject: {fileID: 1300446406}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -0.01, y: 1.166, z: 14.933}
-  m_LocalScale: {x: 0.08, y: 13.605, z: 0.08}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 631422858}
+  m_Father: {fileID: 2076635720}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1396166528
+--- !u!114 &1300446408
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1396166526}
+  m_GameObject: {fileID: 1300446406}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f2576421a0621746a5e427e0ba9e6a8, type: 3}
+  m_Script: {fileID: 11500000, guid: ac6d9d90caa0f2e4682d3d479b6997de, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.Logic.LaserActivation
-  _laser: {fileID: 1396166529}
---- !u!114 &1396166529
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1396166526}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 75a02eb6e660b054d8dcd3591032f9e2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.View.LaserBeamView
-  _renderer: {fileID: 1396166530}
-  _idleIntensity: 4
-  _idleAlpha: 0.85
-  _fadeInDuration: 0.9
-  _fadeCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
---- !u!23 &1396166530
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1396166526}
-  m_Enabled: 1
-  m_CastShadows: 0
-  m_ReceiveShadows: 0
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: aaf95c3642733c44da862e7a811aeb7c, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 1
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_MaskInteraction: 0
-  m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &1396166531
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1396166526}
-  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+  m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.Logic.MapObjectsManager
+  _path: {fileID: 1049530122}
+  _root: {fileID: 1300446407}
+  _spawnRadius: 160
+  _despawnRadius: 60
+  _prewarmPerPrefab: 4
 --- !u!1 &1857720232
 GameObject:
   m_ObjectHideFlags: 0
@@ -1610,6 +1387,7 @@ Transform:
   - {fileID: 1955140746}
   - {fileID: 1156037987}
   - {fileID: 31469312}
+  - {fileID: 1300446407}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807

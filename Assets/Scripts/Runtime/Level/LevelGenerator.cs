@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using CrazyDriver.Actors;
 using CrazyDriver.Config;
 using CrazyDriver.Paths;
 using UnityEngine;
@@ -14,14 +15,14 @@ namespace CrazyDriver.Level
     public sealed class LevelGenerator
     {
         private readonly RoadSettings _road;
-        private readonly EnemySettings _enemies;
         private readonly CarSettings _car;
+        private readonly EnemyEntry[] _enemyRoster;
 
-        public LevelGenerator(RoadSettings road, EnemySettings enemies, CarSettings car)
+        public LevelGenerator(RoadSettings road, CarSettings car, EnemyEntry[] enemyRoster)
         {
             _road = road;
-            _enemies = enemies;
             _car = car;
+            _enemyRoster = enemyRoster ?? Array.Empty<EnemyEntry>();
         }
 
         public LevelPlan Generate(MapConfig map, int seed)
@@ -35,29 +36,77 @@ namespace CrazyDriver.Level
             EnemySpawnPoint[] enemies = GenerateEnemies(map, random, from, to);
             BonusSpawnPoint[] bonuses = GenerateBonuses(map, random, from, to);
 
-            return new LevelPlan(map.Name, map.Length, path, enemies, bonuses, seed);
+            return new LevelPlan(map.Name, map.Length, path, enemies, bonuses, SortByDistance(map.MapObjects), seed);
         }
 
         private EnemySpawnPoint[] GenerateEnemies(MapConfig map, Random random, float from, float to)
         {
+            float totalPart = 0f;
+            foreach (EnemyEntry entry in _enemyRoster)
+            {
+                if (entry.enemyPrefab != null)
+                {
+                    totalPart += Mathf.Max(0f, entry.relativePart);
+                }
+            }
+
+            if (totalPart <= 0f)
+            {
+                return Array.Empty<EnemySpawnPoint>();
+            }
+
             int count = CountFor(map.EnemyFrequency, from, to);
             var result = new EnemySpawnPoint[count];
 
             foreach ((int index, float distance) in StratifiedDistances(count, from, to, random))
             {
+                int entryIndex = PickEnemy(totalPart, random);
+                Enemy prefab = _enemyRoster[entryIndex].enemyPrefab;
+
                 float offset = RandomLateralOffset(random);
 
                 // An enemy that cannot close its lateral gap before the car drives past would just
-                // stand there decoratively. Pull it towards the centerline until it can engage.
-                while (Mathf.Abs(offset) > 0.05f && !_enemies.CanIntercept(offset, _car.Speed))
+                // stand there decoratively. Pull it towards the centerline until it can engage --
+                // and ask the prefab, because only it knows how it moves.
+                while (Mathf.Abs(offset) > 0.05f && !prefab.CanIntercept(offset, _car.Speed))
                 {
                     offset *= 0.8f;
                 }
 
-                result[index] = new EnemySpawnPoint(distance, offset);
+                result[index] = new EnemySpawnPoint(distance, offset, entryIndex);
             }
 
             return result;
+        }
+
+        private int PickEnemy(float totalPart, Random random)
+        {
+            float roll = (float)random.NextDouble() * totalPart;
+
+            for (int i = 0; i < _enemyRoster.Length; i++)
+            {
+                if (_enemyRoster[i].enemyPrefab == null)
+                {
+                    continue;
+                }
+
+                roll -= Mathf.Max(0f, _enemyRoster[i].relativePart);
+                if (roll <= 0f)
+                {
+                    return i;
+                }
+            }
+
+            // Only reachable through floating-point drift at the very top of the range.
+            for (int i = _enemyRoster.Length - 1; i >= 0; i--)
+            {
+                if (_enemyRoster[i].enemyPrefab != null)
+                {
+                    return i;
+                }
+            }
+
+            return 0;
         }
 
         private BonusSpawnPoint[] GenerateBonuses(MapConfig map, Random random, float from, float to)
@@ -93,6 +142,25 @@ namespace CrazyDriver.Level
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Scenery is authored by hand and arrives in whatever order the inspector list happens to
+        /// be in, but the streaming manager walks it with a head index and needs it sorted. Copied
+        /// rather than sorted in place: the map asset is shared and must not be reordered by a run.
+        /// </summary>
+        private static MapObjectData[] SortByDistance(MapObjectData[] objects)
+        {
+            if (objects == null || objects.Length == 0)
+            {
+                return Array.Empty<MapObjectData>();
+            }
+
+            var copy = new MapObjectData[objects.Length];
+            Array.Copy(objects, copy, objects.Length);
+            Array.Sort(copy, static (a, b) => a.distance.CompareTo(b.distance));
+
+            return copy;
         }
 
         private static int CountFor(float per100Meters, float from, float to) =>

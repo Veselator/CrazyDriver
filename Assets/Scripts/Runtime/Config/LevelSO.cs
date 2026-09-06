@@ -18,12 +18,16 @@ namespace CrazyDriver.Config
     {
         [Header("Prefabs")]
         [SerializeField] private GameObject[] _roadPrefabs = Array.Empty<GameObject>();
-        [SerializeField] private GameObject _enemyPrefab;
         [SerializeField] private GameObject[] _bonusPrefabs = Array.Empty<GameObject>();
         [SerializeField] private GameObject _projectilePrefab;
 
         [Header("Run")]
         [SerializeField, Min(1f)] private float _carMaxHealth = 240f;
+
+        [Header("Enemies")]
+        [SerializeField, Tooltip("Every kind of enemy this level can roll, with its share of the " +
+             "population. Each prefab carries its own tuning.")]
+        private EnemyEntry[] _enemies = Array.Empty<EnemyEntry>();
 
         [Header("Maps")]
         [SerializeField] private MapConfig[] _maps = Array.Empty<MapConfig>();
@@ -31,7 +35,8 @@ namespace CrazyDriver.Config
         /// <summary>Interchangeable road pieces. One is picked at random per tile.</summary>
         public GameObject[] RoadPrefabs => _roadPrefabs;
 
-        public GameObject EnemyPrefab => _enemyPrefab;
+        /// <summary>The enemy roster. Spawn points address these by index.</summary>
+        public EnemyEntry[] Enemies => _enemies;
 
         /// <summary>Indexed by <see cref="BonusEntry.PrefabIndex"/>.</summary>
         public GameObject[] BonusPrefabs => _bonusPrefabs;

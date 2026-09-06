@@ -15,6 +15,7 @@ namespace CrazyDriver.Level
             IPathEvaluator path,
             EnemySpawnPoint[] enemies,
             BonusSpawnPoint[] bonuses,
+            MapObjectData[] mapObjects,
             int seed)
         {
             MapName = mapName;
@@ -22,6 +23,7 @@ namespace CrazyDriver.Level
             Path = path;
             Enemies = enemies;
             Bonuses = bonuses;
+            MapObjects = mapObjects;
             Seed = seed;
         }
 
@@ -36,6 +38,9 @@ namespace CrazyDriver.Level
 
         /// <summary>Bonus spawns, ascending by distance.</summary>
         public BonusSpawnPoint[] Bonuses { get; }
+
+        /// <summary>Authored scenery, ascending by distance.</summary>
+        public MapObjectData[] MapObjects { get; }
 
         /// <summary>The seed this plan was produced from. Logged so any run can be reproduced.</summary>
         public int Seed { get; }

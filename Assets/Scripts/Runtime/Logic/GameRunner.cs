@@ -53,6 +53,7 @@ namespace CrazyDriver.Logic
         [SerializeField] private EnemySpawner _enemies;
         [SerializeField] private BonusSpawner _bonuses;
         [SerializeField] private ProjectileController _projectiles;
+        [SerializeField] private MapObjectsManager _mapObjects;
         [SerializeField] private VisualPath _road;
 
         [Header("Presentation")]
@@ -95,7 +96,7 @@ namespace CrazyDriver.Logic
         private void Awake()
         {
             _lifetime = new CancellationTokenSource();
-            _generator = new LevelGenerator(_constants.Road, _constants.Enemy, _constants.Car);
+            _generator = new LevelGenerator(_constants.Road, _constants.Car, _level.Enemies);
         }
 
         private void OnEnable()
@@ -171,6 +172,7 @@ namespace CrazyDriver.Logic
             _projectiles.Clear();
             _enemies.Load(Plan);
             _bonuses.Load(Plan);
+            _mapObjects?.Load(Plan);
             _road.Load(Plan);
 
             _gate.Close(_path);

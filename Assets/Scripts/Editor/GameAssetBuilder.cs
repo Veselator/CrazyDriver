@@ -1,4 +1,5 @@
 using System.IO;
+using CrazyDriver.Actors;
 using CrazyDriver.Config;
 using UnityEditor;
 using UnityEngine;
@@ -82,23 +83,6 @@ namespace CrazyDriver.Editor
             SetFloat(so, "_weapon._projectileLifetime", 2.5f);
             SetFloat(so, "_weapon._hitRadius", 0.35f);
 
-            SetFloat(so, "_enemy._maxHealth", 100f);
-            SetFloat(so, "_enemy._moveSpeed", 6f);
-
-            // Kept deliberately short. At 55 m an enemy spends four and a half seconds sprinting in
-            // full view, so almost everything on screen is charging at once; at 30 m the field
-            // reads as a crowd standing around with only the nearest few breaking into a run.
-            SetFloat(so, "_enemy._activationDistance", 30f);
-            SetFloat(so, "_enemy._despawnDistanceBehind", 25f);
-            // Measured from the car's origin, and the body is 4.25 m long, so anything under about
-            // 3 m puts the attacker inside the bodywork. This stops them at the bumper.
-            SetFloat(so, "_enemy._attackRange", 3.2f);
-
-            // One hit per enemy, since the impact destroys it. Against 200 hit points that is eight
-            // enemies allowed through before the run ends.
-            SetFloat(so, "_enemy._collisionDamage", 25f);
-            SetFloat(so, "_enemy._interceptLead", 0.65f);
-
             // Framed to match the reference: high and steeply behind, with the road filling the
             // frame and no sky in view. Aiming at a ground point just in front of the car puts the
             // camera about 42 degrees nose-down, so with a 55 degree vertical FOV the top of the
@@ -149,8 +133,16 @@ namespace CrazyDriver.Editor
             SetObjectArray(so, "_roadPrefabs", $"{PrefabBuilder.PrefabFolder}/RoadTile.prefab");
             SetObjectArray(so, "_bonusPrefabs", $"{PrefabBuilder.PrefabFolder}/Bonus.prefab");
 
-            so.FindProperty("_enemyPrefab").objectReferenceValue =
-                AssetDatabase.LoadAssetAtPath<GameObject>($"{PrefabBuilder.PrefabFolder}/Enemy.prefab");
+            // One entry, one kind. Adding a flier is a second entry with its own relative part;
+            // nothing else in the generator or the spawner has to know about it.
+            SerializedProperty enemies = so.FindProperty("_enemies");
+            enemies.arraySize = 1;
+
+            SerializedProperty enemy = enemies.GetArrayElementAtIndex(0);
+            enemy.FindPropertyRelative("enemyPrefab").objectReferenceValue =
+                AssetDatabase.LoadAssetAtPath<Enemy>($"{PrefabBuilder.PrefabFolder}/Enemy.prefab");
+            enemy.FindPropertyRelative("relativePart").floatValue = 1f;
+
             so.FindProperty("_projectilePrefab").objectReferenceValue =
                 AssetDatabase.LoadAssetAtPath<GameObject>($"{PrefabBuilder.PrefabFolder}/Projectile.prefab");
 

@@ -20,13 +20,25 @@ namespace CrazyDriver.View
 
         private Vector3 _origin;
         private Vector3 _drift;
+        private Vector3 _baseScale = Vector3.one;
         private float _elapsed;
         private Camera _camera;
+        private bool _measured;
 
         public bool IsFinished => _elapsed >= _lifetime;
 
-        public void Play(string text, Color color, Vector3 worldPosition, Camera viewer)
+        public void Play(string text, Color color, Vector3 worldPosition, Camera viewer, float scale = 1f)
         {
+            // Captured once, from the prefab, before anything has scaled it. Reading it per play
+            // would compound the previous popup's scale into the next one.
+            if (!_measured)
+            {
+                _baseScale = transform.localScale;
+                _measured = true;
+            }
+
+            transform.localScale = _baseScale * Mathf.Max(0.01f, scale);
+
             _label.text = text;
             _label.color = color;
 

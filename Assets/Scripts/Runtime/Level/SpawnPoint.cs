@@ -1,15 +1,19 @@
 namespace CrazyDriver.Level
 {
-    /// <summary>A planned enemy position, fixed at generation time.</summary>
+    /// <summary>A planned enemy position and kind, both fixed at generation time.</summary>
     public readonly struct EnemySpawnPoint
     {
         public readonly float Distance;
         public readonly float LateralOffset;
 
-        public EnemySpawnPoint(float distance, float lateralOffset)
+        /// <summary>Index into the level's <see cref="EnemyEntry"/> roster.</summary>
+        public readonly int EntryIndex;
+
+        public EnemySpawnPoint(float distance, float lateralOffset, int entryIndex)
         {
             Distance = distance;
             LateralOffset = lateralOffset;
+            EntryIndex = entryIndex;
         }
     }
 

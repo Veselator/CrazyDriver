@@ -38,6 +38,7 @@ namespace CrazyDriver.Logic
         [SerializeField] private EnemySpawner _enemies;
         [SerializeField] private BonusSpawner _bonuses;
         [SerializeField] private ProjectileController _projectiles;
+        [SerializeField] private MapObjectsManager _mapObjects;
         [SerializeField] private GameRunner _runner;
 
         [Header("Presentation")]
@@ -64,6 +65,7 @@ namespace CrazyDriver.Logic
             RegisterComponent(builder, _enemies);
             RegisterComponent(builder, _bonuses);
             RegisterComponent(builder, _projectiles);
+            RegisterComponent(builder, _mapObjects);
             RegisterComponent(builder, _runner);
 
             RegisterComponent(builder, _camera);

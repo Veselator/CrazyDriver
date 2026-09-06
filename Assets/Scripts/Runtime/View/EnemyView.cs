@@ -38,7 +38,7 @@ namespace CrazyDriver.View
             }
         }
 
-        private void OnDamaged() => _flash?.Flash();
+        private void OnDamaged(Enemy enemy, float amount) => _flash?.Flash();
 
         private void LateUpdate()
         {

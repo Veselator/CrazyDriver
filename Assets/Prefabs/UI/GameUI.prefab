@@ -68,7 +68,7 @@ MonoBehaviour:
   _group: {fileID: 1474332266058462918}
   _healthBar: {fileID: 6966634606045991940}
   _progressBar: {fileID: 4467983349553002794}
-  _coins: {fileID: 0}
+  _coins: {fileID: 4104949916201338713}
   _distanceLabel: {fileID: 6151127470127869733}
   _health: {fileID: 0}
   _wallet: {fileID: 0}
@@ -234,7 +234,7 @@ MonoBehaviour:
   - 1
   - Go!
   _stepDuration: 0.6
-  _punchScale: 1.6
+  _punchScale: 2.24
   _countColor: {r: 1, g: 1, b: 1, a: 1}
   _goColor: {r: 0.35, g: 0.95, b: 0.4, a: 1}
 --- !u!1 &2156723048246033260
@@ -400,7 +400,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -537,7 +537,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -779,7 +779,7 @@ RectTransform:
   m_GameObject: {fileID: 3559611415197777273}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.2564, y: 1.2564, z: 1.2564}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8267197005431669035}
@@ -839,7 +839,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -976,7 +976,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -1267,7 +1267,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -1420,6 +1420,7 @@ GameObject:
   - component: {fileID: 3135465184396167268}
   - component: {fileID: 8881166492376468798}
   - component: {fileID: 7045867605332774389}
+  - component: {fileID: 4104949916201338713}
   m_Layer: 0
   m_Name: CoinsLabel
   m_TagString: Untagged
@@ -1496,7 +1497,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -1546,6 +1547,25 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &4104949916201338713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6468699331056506606}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f7eaf394cb8b2641b0a49371adc57d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.UI.CoinCounterView
+  _label: {fileID: 7045867605332774389}
+  _baseColor: {r: 1, g: 1, b: 1, a: 1}
+  _gainColor: {r: 0.35, g: 0.95, b: 0.4, a: 1}
+  _lossColor: {r: 0.95, g: 0.3, b: 0.28, a: 1}
+  _flashInDuration: 0.5
+  _flashOutDuration: 0.5
+  _rollDuration: 0.4
 --- !u!1 &6673976411277592319
 GameObject:
   m_ObjectHideFlags: 0
@@ -1633,7 +1653,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -1909,7 +1929,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0

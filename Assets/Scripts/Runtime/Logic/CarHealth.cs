@@ -21,6 +21,13 @@ namespace CrazyDriver.Logic
         /// <summary>Raised on every change, carrying current and maximum hit points.</summary>
         public event Action<float, float> Changed;
 
+        /// <summary>
+        /// Raised on a damaging hit, carrying the hit points actually lost. Separate from
+        /// <see cref="Changed"/> because feedback needs the size of the hit, which a before-and-after
+        /// pair of totals does not give you once the bar is already empty.
+        /// </summary>
+        public event Action<float> Damaged;
+
         public event Action Died;
 
         public float Current => _current;
@@ -38,8 +45,11 @@ namespace CrazyDriver.Logic
                 return;
             }
 
-            _current = Mathf.Max(0f, _current - amount);
+            float applied = Mathf.Min(amount, _current);
+
+            _current -= applied;
             Changed?.Invoke(_current, _max);
+            Damaged?.Invoke(applied);
 
             if (_current <= 0f)
             {

@@ -45,9 +45,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 2208895892764331430}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3642d25e98ad69641b09e31cb2b490c6, type: 3}
+  m_Script: {fileID: 11500000, guid: f9f5f84e261930f43b6a01cda431972a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.Actors.Enemy
+  m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.Actors.SimpleEnemy
+  _maxHealth: 100
+  _activationDistance: 66.6
+  _despawnDistanceBehind: 25
+  _moveSpeed: 6
+  _attackRange: 3.2
+  _interceptLead: 0.65
+  _collisionDamage: 25
 --- !u!114 &561251281803095795
 MonoBehaviour:
   m_ObjectHideFlags: 0

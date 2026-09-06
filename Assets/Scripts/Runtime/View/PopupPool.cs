@@ -40,7 +40,8 @@ namespace CrazyDriver.View
             }
         }
 
-        public void Play(string text, Color color, Vector3 worldPosition)
+        /// <param name="scale">Multiplies the prefab's size. Kills and heavier hits read larger.</param>
+        public void Play(string text, Color color, Vector3 worldPosition, float scale = 1f)
         {
             if (_prefab == null)
             {
@@ -50,7 +51,7 @@ namespace CrazyDriver.View
             FloatingTextView view = _free.Count > 0 ? _free.Pop() : Create();
 
             view.gameObject.SetActive(true);
-            view.Play(text, color, worldPosition, _viewer != null ? _viewer : Camera.main);
+            view.Play(text, color, worldPosition, _viewer != null ? _viewer : Camera.main, scale);
 
             _live.Add(view);
         }

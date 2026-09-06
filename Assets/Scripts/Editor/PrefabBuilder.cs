@@ -324,9 +324,27 @@ namespace CrazyDriver.Editor
         {
             var root = new GameObject("Enemy") { layer = LayerMask.NameToLayer(HittableLayerName) };
 
-            // Logic and view are separate components on the same object: Enemy decides, EnemyView
-            // draws, and neither can quietly start doing the other's job.
-            var enemy = root.AddComponent<Enemy>();
+            // Logic and view are separate components on the same object: the enemy decides,
+            // EnemyView draws, and neither can quietly start doing the other's job. The concrete
+            // type is SimpleEnemy -- Enemy itself is abstract, and a second kind is a second prefab
+            // with a different subclass, not a change here.
+            var enemy = root.AddComponent<SimpleEnemy>();
+
+            // Tuning lives on the prefab now, so it is written here rather than into the shared
+            // constants asset, and these are the values the game is currently balanced around.
+            SerializeFloats(
+                enemy,
+                ("_maxHealth", 100f),
+                ("_activationDistance", 66.6f),
+                ("_despawnDistanceBehind", 25f),
+                ("_moveSpeed", 6f),
+                // Measured from the car's origin, and the body is 4.25 m long, so anything under
+                // about 3 m puts the attacker inside the bodywork. This stops them at the bumper.
+                ("_attackRange", 3.2f),
+                ("_interceptLead", 0.65f),
+                // One hit per enemy, since the impact destroys it. Against 200 hit points that is
+                // eight enemies allowed through before the run ends.
+                ("_collisionDamage", 25f));
             var enemyView = root.AddComponent<EnemyView>();
 
             var capsule = root.AddComponent<CapsuleCollider>();
@@ -497,6 +515,25 @@ namespace CrazyDriver.Editor
             }
 
             return instance;
+        }
+
+        private static void SerializeFloats(Object target, params (string Field, float Value)[] assignments)
+        {
+            var serialized = new SerializedObject(target);
+
+            foreach ((string field, float value) in assignments)
+            {
+                SerializedProperty property = serialized.FindProperty(field);
+                if (property == null)
+                {
+                    Debug.LogError($"[PrefabBuilder] {target.GetType().Name} has no field '{field}'.");
+                    continue;
+                }
+
+                property.floatValue = value;
+            }
+
+            serialized.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static void SerializeFields(Object target, params (string Field, Object Value)[] assignments)
