@@ -189,6 +189,11 @@ counter -- and nothing in the simulation depends on any of it.
   goes through a `MaterialPropertyBlock` rather than the particle system's start colour: mesh
   particles carry no colour vertex stream, so a start colour never reaches the shader and every
   burst came out white.
+- **The health and progress bars belong to the run, not to the menu.** Both are hidden while the
+  player waits to tap and fade in on `OnRunStarted`; the health bar sweeps from empty to full as it
+  appears, which states what there is to lose before the first enemy is in range. Each bar owns its
+  own `CanvasGroup` and its own timers, because the fade and the sweep are one animation and
+  splitting them across components would mean keeping two clocks in step for nothing.
 - **Tyre tracks** — a `TrailRenderer` per rear wheel. The car only ever moves forward along a known
   path, so a decal projector would buy nothing that a trail does not. Two details are load-bearing:
   the emitters are rotated so their +Z points up, because a `TrailRenderer` set to `TransformZ`
@@ -213,6 +218,14 @@ damage-per-second instead left the survivor jogging alongside the car draining i
 bug rather than as a hit.
 
 ## Decisions worth explaining
+
+**Enemies are deliberately imprecise.** A continuously-solved interception traces a perfectly smooth
+arc, which reads as a guided missile rather than a person. Three cheap sources of noise fix it
+without touching the maths: the aim point is refreshed only every 0.16-0.42 s, so the enemy runs at
+where it last saw the car going; the heading wanders on Perlin noise with a per-instance offset,
+damped as it closes in so the final stride does not swerve past the bumper; and running speed varies
+both between enemies and over time. All of it is rolled from a `System.Random` seeded by the spawn
+distance, so a replayed seed replays the same crowd.
 
 **Enemies aim where the car *will* be.** The car is twice as fast as an enemy, so chasing its current
 position is a tail chase that can never be won and the game would have no fail state. `interceptLead`
