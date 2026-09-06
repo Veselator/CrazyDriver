@@ -804,6 +804,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93dcf11e82c0e8b4abd32dc782e67dbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.CarScalingAnim
+  _target: {fileID: 0}
+  _amplitude: {x: -0.15, y: 0.27, z: 0}
+  _cycleDuration: 0.42
+  _cycles: 3
+  _amplitudeWhileMoving: {x: 0, y: 0.03, z: 0}
+  _speedWhileMoving: 2.2
+  _settleDuration: 0.35
 --- !u!1 &7620581941059186138
 GameObject:
   m_ObjectHideFlags: 0

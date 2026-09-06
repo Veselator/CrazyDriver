@@ -198,6 +198,31 @@ namespace CrazyDriver.Actors
         }
 
         /// <summary>
+        /// The height of the road surface under a world position.
+        /// <para>
+        /// A chase computed in the XZ plane keeps whatever height the enemy spawned at, and the road
+        /// rises and falls with distance, so after a few strides the enemy is buried in a hill or
+        /// walking above one. This resolves the height the same way everything else does: by asking
+        /// the path, rather than by casting a ray at geometry that is only an approximation of it.
+        /// </para>
+        /// <para>
+        /// The position is converted back into a distance and a lateral offset by projecting onto
+        /// the path's axes at the car -- the same projection <see cref="HasFallenBehind"/> uses.
+        /// </para>
+        /// </summary>
+        protected float GroundHeightAt(Vector3 worldPosition)
+        {
+            Vector3 offset = worldPosition - Car.Position;
+            Vector3 forward = Car.PathRotation * Vector3.forward;
+            Vector3 right = Car.PathRotation * Vector3.right;
+
+            float distance = Path.Distance + Vector3.Dot(offset, forward);
+            float lateral = Car.LateralOffset + Vector3.Dot(offset, right);
+
+            return Path.Evaluate(distance, lateral).Position.y;
+        }
+
+        /// <summary>
         /// True once the car has driven far enough past. Projects the offset onto the path's forward
         /// axis: straight-line distance would keep an enemy alive forever while it ran alongside.
         /// </summary>

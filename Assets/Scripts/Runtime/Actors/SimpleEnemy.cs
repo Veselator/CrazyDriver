@@ -166,7 +166,13 @@ namespace CrazyDriver.Actors
             float surge = 1f + (Mathf.PerlinNoise(Time.time * _surgeRate, _surgeSeed) * 2f - 1f) * _surgeAmount;
             float speed = _moveSpeed * _speedScale * Mathf.Max(0.1f, surge);
 
-            transform.position += heading * (speed * Time.deltaTime);
+            Vector3 next = transform.position + heading * (speed * Time.deltaTime);
+
+            // The stride is computed flat, so the height has to be put back afterwards or the enemy
+            // walks straight into the next rise in the road.
+            next.y = GroundHeightAt(next);
+
+            transform.position = next;
             Face(heading);
         }
 
