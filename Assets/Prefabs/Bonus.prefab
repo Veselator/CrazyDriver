@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4195649377495349893}
+  - component: {fileID: 3610189282202747929}
   - component: {fileID: 7531940210240034927}
   - component: {fileID: 7610482952710354056}
-  - component: {fileID: 4265481669383813651}
   m_Layer: 8
   m_Name: Bonus
   m_TagString: Untagged
@@ -35,6 +35,18 @@ Transform:
   - {fileID: 7001257302180910904}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3610189282202747929
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 175118297794163370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 747ce6a60a1501340bce1e48b68293ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.Actors.Bonus
 --- !u!114 &7531940210240034927
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -46,8 +58,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86e2b121e79e944cabf05e77886ab7c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: CrazyDriver.Game::CrazyDriver.Game.Views.BonusView
-  _damageReceiver: {fileID: 4265481669383813651}
+  m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.View.BonusView
   _spinner: {fileID: 7001257302180910904}
   _spinSpeed: 90
 --- !u!65 &7610482952710354056
@@ -71,18 +82,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.1, y: 1.1, z: 1.1}
   m_Center: {x: 0, y: 0.9, z: 0}
---- !u!114 &4265481669383813651
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 175118297794163370}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f422189b74515f44e8eec5b680cab929, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CrazyDriver.Game::CrazyDriver.Game.Views.DamageReceiver
 --- !u!1 &1511563726190793232
 GameObject:
   m_ObjectHideFlags: 0

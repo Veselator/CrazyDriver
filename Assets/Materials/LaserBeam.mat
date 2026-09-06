@@ -26,9 +26,9 @@ Material:
     m_Ints: []
     m_Floats:
     - _Alpha: 0.85
-    - _CoreSharpness: 2
-    - _EdgeBoost: 0.25
-    - _Intensity: 11.6
+    - _CoreSharpness: 0.88
+    - _EdgeBoost: 0.502
+    - _Intensity: 14.7
     m_Colors:
     - _BaseColor: {r: 1, g: 0.2, b: 0.13, a: 1}
   m_BuildTextureStacks: []

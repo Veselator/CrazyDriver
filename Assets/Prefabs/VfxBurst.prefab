@@ -45,7 +45,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1722d4b50aeb8234ba913fdfa990c77e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: CrazyDriver.Game::CrazyDriver.Game.Views.VfxBurstView
+  m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.View.VfxBurstView
   _particles: {fileID: 3016226800245842274}
   _renderer: {fileID: 9004519402570588184}
 --- !u!198 &3016226800245842274

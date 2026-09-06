@@ -13,51 +13,67 @@ Open `Assets/Scenes/Game.unity` and press Play.
 - **Tap / click** — start the run, and dismiss the win or lose screen.
 - **Drag left / right** — aim the turret. The angle is measured from wherever the drag started.
 
-`CrazyDriver/Run Simulation Smoke Test` plays whole levels headlessly and prints the outcomes.
-`CrazyDriver/Rebuild Project` regenerates every prefab, both config assets and the scene from source.
+`CrazyDriver/Rebuild Prefabs And Data` creates any **missing** prefab and refreshes the two config
+assets. It never overwrites a prefab that already exists and never touches the scene.
 
-> **The scene is generated, the UI is not.** `Rebuild Project` throws the scene away and rebuilds it,
-> so anything hand-placed in `Game.unity` is lost. The UI is deliberately exempt: it lives in
-> `Assets/Prefabs/UI/GameUI.prefab`, which the tool creates only if it is missing and otherwise
-> re-instantiates untouched. Edit the UI in that prefab and rebuilds will keep your work. Delete the
-> prefab to get the generated layout back.
+> **The scene and the prefabs are authored, not generated.** Regenerating a prefab replaces its
+> contents wholesale, which discards everything a scene instance layered on top of it. That has cost
+> real work here more than once. `CrazyDriver/Force Rebuild Prefabs` will overwrite, behind a
+> confirmation; the scene has no generator at all any more.
 
 ## Architecture
 
-The rule the project is built around: **Unity is the presentation layer.** Gameplay lives in plain C#
-classes with no MonoBehaviour, no Transform and no Update. Two assemblies enforce it.
+Logic and visuals are separate, but both live on Unity's own lifecycle: every system is a
+MonoBehaviour with its own `Awake`, `OnEnable` and `Update`, wired by serialized references and
+VContainer injection.
 
 ```
-CrazyDriver.Core     pure simulation - no MonoBehaviours, no scene, no prefabs
-CrazyDriver.Game     views, input, UI, DI wiring; references Core
-CrazyDriver.Editor   asset and scene generation, headless test harness
+Runtime/Events    GameEvents - the static bus
+Runtime/Logic     the simulation: PathTracker, CarMotor, TurretAim, AutoCannon, CarHealth,
+                  CoinWallet, EnemySpawner, BonusSpawner, ProjectileController, GameRunner
+Runtime/Actors    Enemy and Bonus, the components on their pooled prefabs
+Runtime/View      components that only read state and draw
+Runtime/UI        HUD and result screen
+Runtime/Paths, Level, Config, Progression, Pooling, Combat   plain classes: maths and data
+Editor            prefab and data generation
 ```
 
-`Core` never references `Game`, so the simulation cannot reach into the scene even by accident. The
-payoff is concrete: `SimulationSmokeTest` plays a dozen full levels in milliseconds without entering
-play mode, which is how the balance table below was produced.
+Each logic component is paired with a view that reads its state and writes transforms in
+`LateUpdate`. `Enemy` decides where it runs; `EnemyView` only animates. Deleting every view would
+leave the game playing identically and invisibly.
 
-### Flow of a frame
+### The event bus
 
-`GameStartupManager` is the single entry point. It is a VContainer `LifetimeScope` rather than a
-separate manager next to one — the scope is already a MonoBehaviour with a container and a start-up
-hook, so a second class duplicating that would be two entry points pretending to be one.
+`GameEvents` is a static class with four events: `OnGameStarted`, `OnRunStarted`, `OnWin`, `OnLose`.
+Publishers and subscribers never hold a reference to each other, which is the point.
+
+Two things a static bus needs and usually does not get:
+
+- Subscriptions are taken in `OnEnable` and released in `OnDisable`, never in a constructor. A static
+  event outlives every object that subscribed to it.
+- `ResetSubscriptions` runs on `SubsystemRegistration`. A static event is **not** cleared by leaving
+  play mode when Enter Play Mode Options has domain reload switched off, so without it the second
+  session runs with the first session's dead subscribers still attached and every handler fires
+  against destroyed objects.
+
+### Tick order
+
+Splitting the simulation across MonoBehaviours hands the ordering to Unity, and it matters here: the
+car must move before anything reads its position, or every enemy chases where it was last frame.
+`ExecutionOrder` holds the numbers for `[DefaultExecutionOrder]` so the ordering lives in source and
+shows up in a diff, rather than in the Project Settings window where it is invisible.
 
 ```
-PointerInputService  (ITickable)      raw pointer -> taps and normalized drag offsets
-GameLoop             (ITickable)      RunController.Tick -> projectiles -> road streaming
-PresentationSystem   (ILateTickable)  copies model state onto transforms, camera last
+Input -200 → GameRunner -100 → CarMotor 0 → Turret 10 → Weapon 20
+           → Enemies 30 → Bonuses 40 → Projectiles 50 → Road 60
 ```
 
-Nothing else has an `Update`. Ordering is four lines of code instead of a script execution order
-setting.
-
-`RunController` owns the lifecycle — generate, wait for a tap, drive, resolve — and ticks every other
-core system in a fixed order. States are `Ready → Playing → Won | Lost → Ready`.
+`GameRunner` does not tick the others. It enables and disables them, which is how Unity expresses
+"the world is not running" without every component carrying a state check of its own.
 
 ### Positioning
 
-Everything positional is expressed as a **distance in meters** and resolved through one abstraction:
+Everything positional is a **distance in meters**, resolved through one abstraction:
 
 ```csharp
 public interface IPathEvaluator
@@ -67,20 +83,17 @@ public interface IPathEvaluator
 ```
 
 `PathSample` is a value type carrying a position and a rotation. It is deliberately not a `Transform`
-— a Transform is a component bound to a live GameObject and cannot be produced for an arbitrary
+-- a Transform is a component bound to a live GameObject and cannot be produced for an arbitrary
 distance, which is why the road, the car, the enemies and the bonuses all share this instead.
 
-`StraightPath` implements the looped straight corridor: the centerline runs along +Z and only its
-height varies. Treating distance as the *horizontal* coordinate rather than true arc length keeps the
-class trivial and the car's fixed speed genuinely fixed; with gentle slopes the two differ by well
-under a percent, so no arc-length lookup table is needed. A curved path would not have that luxury,
-which is exactly why the abstraction exists.
+`PathTracker` owns the travelled distance and the current curve, and implements the interface itself
+so everything reads one object. `StraightPath` is the looped corridor the brief asks for: straight
+along +Z with only its height varying, so distance is the horizontal coordinate and no arc-length
+lookup table is needed. Curves would need one -- which is exactly why the abstraction exists.
 
-`ActivePath` is a stable indirection to whichever evaluator the current run generated, so a restart
-swaps the curve in one place instead of rebuilding the object graph.
-
-`VisualPath` streams pooled road tiles and answers `GetPos(distance, lateralOffset)` by delegating to
-the evaluator, so geometry and geometry-as-data can never drift apart.
+**Enemy activation is a distance comparison, never a trigger.** Each enemy carries the distance it
+was generated at and wakes when the car comes within range of it. That is two floats, frame-rate
+independent, needs no collider or rigidbody, and does not care what the physics broadphase is doing.
 
 ## Player data
 
@@ -100,14 +113,14 @@ guaranteed frame spike. Writes go to a temporary file that is then moved into pl
 mid-write leaves the previous save intact rather than a half-written one. The record carries a schema
 version, and a file from a newer build is ignored rather than misread.
 
-`Wallet` remains per-run and is still reset by `RunController.Prepare()`; the profile is what
-survives. The smoke test performs a full round trip -- write, reload from disk with a second service,
-compare -- because persistence bugs otherwise only surface on the player's second session.
+`CoinWallet` remains per-run and is reset by `GameRunner.Prepare()`; the profile is what
+survives. Persistence bugs otherwise only surface on the player's second session, so the write is atomic and
+the record is versioned rather than trusted.
 
 ## Feedback
 
-`FeedbackSystem` turns simulation events into things the player can see, and nothing else subscribes
-to it, so deleting it would change nothing about how the game plays.
+Feedback lives next to the thing it reacts to -- the spawner fires the burst, the HUD animates the
+counter -- and nothing in the simulation depends on any of it.
 
 - **Damage and coin popups** — pooled world-space TextMeshPro labels that rise on a decelerating
   curve, fade late so the number stays readable, and take a small random sideways offset so several
@@ -141,11 +154,6 @@ bug rather than as a hit.
 
 ## Decisions worth explaining
 
-**Enemy activation is a distance comparison, not a trigger volume.** Each enemy is generated with a
-distance along the path; `SpawnStream<T>` walks the distance-sorted array with a single head index.
-Everything before it has fired, everything after is too far, and the per-frame cost is the number of
-items actually activated rather than the size of the level.
-
 **Enemies aim where the car *will* be.** The car is twice as fast as an enemy, so chasing its current
 position is a tail chase that can never be won and the game would have no fail state. `interceptLead`
 turns the same speed budget into an interception. The level generator refuses to place an enemy where
@@ -177,13 +185,9 @@ under an overlap fudge.
 **Wavelengths are constrained by the road geometry.** `ground.fbx` is a rigid 75 m plane, and tiles are
 laid on the chord between boundaries, so a height wave shorter than a tile leaves the car hovering
 over the middle of every piece. `GameConstantsSO.GetRoadChordError` measures that deviation and
-`GameStartupManager.OnValidate` warns when it exceeds 25 cm. This is the one cross-asset constraint in
+`GameScope` holds both assets, so the check has somewhere to live. This is the one cross-asset constraint in
 the project and it is invisible in either asset's inspector alone, which is why the check lives where
 both meet.
-
-**Pooled agents return values instead of raising events.** A pooled object that owned events would
-need every subscriber wired on rent and torn down on release, and one missed unsubscribe resurrects a
-dead enemy's damage. `EnemyAgent.Tick` returns the damage it dealt; the director polls state.
 
 **Damage is accumulated across the enemy loop and reported once.** Reporting it inside the loop let a
 killing blow run the whole lose sequence — which clears the very list being iterated — while the loop
@@ -191,7 +195,7 @@ still held an index into it. The smoke test caught this.
 
 **Generation is seeded end to end.** Map choice, enemy and bonus placement, sway phases and terrain
 phases all derive from one seed, which is logged at the start of every run. Setting
-`GameStartupManager._fixedSeed` to a non-zero value replays a run exactly.
+`GameRunner._fixedSeed` to a non-zero value replays a run exactly.
 
 ## Balance
 
@@ -207,8 +211,6 @@ little easier than this table.
 | 70 % | Lost at 301 m | Lost at 332 m |
 | 80 % | **Won**, 125 hp left | **Won**, 25 hp left |
 | 100 % | **Won**, full hp | **Won**, full hp |
-
-The same command also round-trips the player profile through disk and reports OK or FAILED.
 
 The threshold sits between 70 % and 80 %: both outcomes are reachable and neither is degenerate.
 

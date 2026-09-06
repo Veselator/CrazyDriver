@@ -135,7 +135,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fcff446bd2506274897d75c50e8ff29e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: CrazyDriver.Game::CrazyDriver.Game.Views.ProjectileView
+  m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.View.ProjectileView
   _trail: {fileID: 6774345562258520070}
 --- !u!96 &6774345562258520070
 TrailRenderer:

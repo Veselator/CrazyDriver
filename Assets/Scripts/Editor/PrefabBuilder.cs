@@ -45,6 +45,16 @@ namespace CrazyDriver.Editor
         public static Material WorldMaterial { get; private set; }
         public static Material CarMaterial { get; private set; }
 
+        /// <summary>
+        /// When true, existing prefabs are overwritten. Off by default.
+        /// <para>
+        /// Regenerating a prefab replaces its contents wholesale, and that discards every override
+        /// a scene instance had added to it -- a hand-placed child on the car, for one. Skipping
+        /// prefabs that already exist makes the generator a scaffold rather than a periodic undo.
+        /// </para>
+        /// </summary>
+        public static bool Overwrite { get; set; }
+
         public static void BuildAll()
         {
             Directory.CreateDirectory(PrefabFolder);
@@ -511,6 +521,16 @@ namespace CrazyDriver.Editor
         private static void Save(GameObject root, string name)
         {
             string path = $"{PrefabFolder}/{name}.prefab";
+
+            if (!Overwrite && AssetDatabase.LoadAssetAtPath<GameObject>(path) != null)
+            {
+                Debug.Log($"[PrefabBuilder] {name}.prefab already exists and was left alone. " +
+                          "Use CrazyDriver/Force Rebuild Prefabs to regenerate it.");
+
+                Object.DestroyImmediate(root);
+                return;
+            }
+
             PrefabUtility.SaveAsPrefabAsset(root, path);
             Object.DestroyImmediate(root);
         }

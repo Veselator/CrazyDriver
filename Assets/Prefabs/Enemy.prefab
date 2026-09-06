@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6480077750799740884}
+  - component: {fileID: 5524882411845705780}
   - component: {fileID: 561251281803095795}
   - component: {fileID: 442182300009547626}
-  - component: {fileID: 5634524049590032966}
   m_Layer: 8
   m_Name: Enemy
   m_TagString: Untagged
@@ -35,6 +35,18 @@ Transform:
   - {fileID: 3988438266397625471}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5524882411845705780
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2208895892764331430}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3642d25e98ad69641b09e31cb2b490c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.Actors.Enemy
 --- !u!114 &561251281803095795
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -46,8 +58,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d4d8aa3f78ad67f4c8e4e90738b43db4, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: CrazyDriver.Game::CrazyDriver.Game.Views.EnemyView
-  _damageReceiver: {fileID: 5634524049590032966}
+  m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.View.EnemyView
+  _enemy: {fileID: 5524882411845705780}
   _animator: {fileID: 2313982073533532036}
 --- !u!136 &442182300009547626
 CapsuleCollider:
@@ -72,18 +84,6 @@ CapsuleCollider:
   m_Height: 1.8
   m_Direction: 1
   m_Center: {x: 0, y: 0.9, z: 0}
---- !u!114 &5634524049590032966
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2208895892764331430}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f422189b74515f44e8eec5b680cab929, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CrazyDriver.Game::CrazyDriver.Game.Views.DamageReceiver
 --- !u!1 &3969208043088299952
 GameObject:
   m_ObjectHideFlags: 0
