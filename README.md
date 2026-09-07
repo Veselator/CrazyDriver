@@ -233,6 +233,17 @@ turns the same speed budget into an interception. The level generator refuses to
 that prefab's own `CanIntercept` says it could never engage, pulling the spawn towards the centerline
 until it can.
 
+**Each shot flies itself.** `ProjectileView` owns its own movement and its own sweep and raises
+`OnProjectileDied` when it is spent; `ProjectileController` is left with creating them and taking
+them back, and has no `Update` at all. The alternative -- one controller looping over a list of shot
+structs -- packed the data better but put the flight, the hit and the pooling in one method, and the
+sweep count is identical either way: one `SphereCast` per live shot.
+
+**Bullets are swept, not collided.** A projectile carries no collider and no Rigidbody; each frame it
+sweeps a sphere along the segment it is about to cover. At 90 m/s a collider-based bullet passes
+clean through a stickman between two fixed-update steps. The hit still resolves from a collider, as
+the brief requires -- it is only the bullet that has none.
+
 **The turret's aim is stored against the path, not the car.** If the turret were simply a child of the
 car, the car's sway would rotate the barrel while the player's finger was still. The angle is held
 relative to the path and the view cancels the car's rotation out, so the crosshair stays where the

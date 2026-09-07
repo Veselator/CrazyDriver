@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using CrazyDriver.Combat;
 using CrazyDriver.Config;
+using CrazyDriver.Pooling;
 using CrazyDriver.View;
 using UnityEngine;
 using VContainer;
@@ -8,35 +8,27 @@ using VContainer;
 namespace CrazyDriver.Logic
 {
     /// <summary>
-    /// Fires, moves and resolves every projectile.
+    /// Creates projectiles and takes them back. Nothing else.
     /// <para>
-    /// Each shot is swept with a sphere cast along the segment it covers this frame rather than
-    /// being given a collider and a Rigidbody. At these speeds a collider-based bullet passes clean
-    /// through a stickman between two fixed-update steps; a sweep cannot miss, costs one cast per
-    /// live shot, and needs no physics body at all. Hits still resolve by collider, as the brief
-    /// requires -- it is only the bullet that has none.
+    /// Each shot flies itself and resolves its own hit -- see <see cref="ProjectileView"/> -- and
+    /// says so by raising <see cref="ProjectileView.OnProjectileDied"/>. This has no Update of its
+    /// own: there is no per-frame work left here that is not already the shot's own business.
     /// </para>
     /// </summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(ExecutionOrder.Projectiles)]
-    public sealed class ProjectileController : RunPhaseBehaviour
+    public sealed class ProjectileController : MonoBehaviour
     {
-        private struct Shot
-        {
-            public ProjectileView View;
-            public Vector3 Position;
-            public Vector3 Direction;
-            public float RemainingLifetime;
-        }
-
         [SerializeField] private Transform _root;
 
-        private readonly Stack<ProjectileView> _free = new();
-        private readonly List<Shot> _live = new(32);
-        private readonly RaycastHit[] _hits = new RaycastHit[8];
+        [SerializeField, Min(0), Tooltip("Shots built before the first trigger pull.")]
+        private int _prewarm = 16;
+
+        private readonly List<ProjectileView> _live = new(32);
 
         private GameConstantsSO _constants;
         private LevelSO _level;
+        private PrefabPool<ProjectileView> _pool;
 
         [Inject]
         public void Construct(GameConstantsSO constants, LevelSO level)
@@ -45,7 +37,7 @@ namespace CrazyDriver.Logic
             _level = level;
         }
 
-        protected override void OnAwake()
+        private void Awake()
         {
             if (_root == null)
             {
@@ -55,114 +47,69 @@ namespace CrazyDriver.Logic
 
         public void Fire(Vector3 origin, Quaternion rotation)
         {
-            ProjectileView view = _free.Count > 0 ? _free.Pop() : Create();
+            ProjectileView shot = Pool().Rent();
+            shot.Launch(origin, rotation);
 
-            view.gameObject.SetActive(true);
-            view.OnRented(origin, rotation);
-
-            _live.Add(new Shot
-            {
-                View = view,
-                Position = origin,
-                Direction = rotation * Vector3.forward,
-                RemainingLifetime = _constants.Weapon.ProjectileLifetime
-            });
+            _live.Add(shot);
         }
 
+        /// <summary>Ends every shot in the air, as when a run finishes.</summary>
         public void Clear()
         {
+            // Backwards: Kill raises OnProjectileDied, which removes the shot from this very list.
             for (int i = _live.Count - 1; i >= 0; i--)
             {
-                Release(i);
+                _live[i].Kill();
             }
+
+            _live.Clear();
         }
 
-        private void Update()
+        /// <summary>
+        /// Built on first use rather than in Awake: the pool needs the injected level asset for the
+        /// prefab and the constants for the shot's tuning, and container injection is not guaranteed
+        /// to have run by the time Awake does.
+        /// </summary>
+        private PrefabPool<ProjectileView> Pool()
         {
-            WeaponSettings weapon = _constants.Weapon;
-            float deltaTime = Time.deltaTime;
-            float step = weapon.ProjectileSpeed * deltaTime;
-
-            for (int i = _live.Count - 1; i >= 0; i--)
+            if (_pool != null)
             {
-                Shot shot = _live[i];
-
-                shot.RemainingLifetime -= deltaTime;
-                if (shot.RemainingLifetime <= 0f)
-                {
-                    Release(i);
-                    continue;
-                }
-
-                if (TryResolveHit(shot, step, weapon))
-                {
-                    Release(i);
-                    continue;
-                }
-
-                shot.Position += shot.Direction * step;
-                shot.View.transform.position = shot.Position;
-                _live[i] = shot;
+                return _pool;
             }
+
+            ProjectileView prefab = _level.ProjectilePrefab.GetComponent<ProjectileView>();
+
+            _pool = new PrefabPool<ProjectileView>(prefab, _root, OnCreated);
+            _pool.Prewarm(_prewarm);
+
+            return _pool;
         }
 
-        private bool TryResolveHit(Shot shot, float step, WeaponSettings weapon)
+        private void OnCreated(ProjectileView shot)
         {
-            int count = Physics.SphereCastNonAlloc(
-                shot.Position,
-                weapon.HitRadius,
-                shot.Direction,
-                _hits,
-                step,
-                _constants.ProjectileHitMask,
-                QueryTriggerInteraction.Collide);
+            shot.Bind(_constants.Weapon, _constants.ProjectileHitMask);
 
-            // NonAlloc does not sort its results, and punching through the enemy you aimed at to hit
-            // the one behind would feel broken, so take the nearest of whatever the sweep found.
-            IDamageable nearest = null;
-            float nearestDistance = float.MaxValue;
+            // Subscribed once, for the life of the instance, never per rent.
+            shot.OnProjectileDied += OnDied;
+        }
 
-            for (int i = 0; i < count; i++)
+        private void OnDied(ProjectileView shot)
+        {
+            _live.Remove(shot);
+            _pool.Return(shot);
+        }
+
+        private void OnDestroy()
+        {
+            if (_pool == null)
             {
-                if (_hits[i].distance >= nearestDistance)
-                {
-                    continue;
-                }
-
-                if (!_hits[i].collider.TryGetComponent(out IDamageable target) || !target.IsAlive)
-                {
-                    continue;
-                }
-
-                nearest = target;
-                nearestDistance = _hits[i].distance;
+                return;
             }
 
-            if (nearest == null)
+            foreach (ProjectileView shot in _pool.Created)
             {
-                return false;
+                shot.OnProjectileDied -= OnDied;
             }
-
-            nearest.TakeDamage(weapon.Damage);
-            return true;
-        }
-
-        private ProjectileView Create()
-        {
-            ProjectileView view = Instantiate(_level.ProjectilePrefab, _root).GetComponent<ProjectileView>();
-            view.gameObject.SetActive(false);
-            return view;
-        }
-
-        private void Release(int index)
-        {
-            ProjectileView view = _live[index].View;
-            view.gameObject.SetActive(false);
-            _free.Push(view);
-
-            int last = _live.Count - 1;
-            _live[index] = _live[last];
-            _live.RemoveAt(last);
         }
     }
 }

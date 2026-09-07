@@ -868,8 +868,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0763055fabd6e0f4eb1ce4f09096af49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CrazyDriver.Runtime::CrazyDriver.Logic.ProjectileController
-  _activeDuring: 6
   _root: {fileID: 1156037987}
+  _prewarm: 16
 --- !u!114 &1049530119
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3525,7 +3525,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 40, y: -21.5511}
+  m_AnchoredPosition: {x: 40, y: -21.551147}
   m_SizeDelta: {x: 1000, y: 72.4489}
   m_Pivot: {x: 0, y: 1}
 --- !u!225 &8297683992596964326
